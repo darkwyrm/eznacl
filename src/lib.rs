@@ -1,3 +1,7 @@
+mod cryptostring;
+
+pub use cryptostring::CryptoString;
+
 #[cfg(test)]
 mod tests {
     #[test]
