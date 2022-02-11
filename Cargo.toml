@@ -1,0 +1,16 @@
+[package]
+name = "eznacl"
+version = "0.1.0"
+edition = "2021"
+authors = [ "Jon Yoder <jon@yoder.cloud>"]
+description = "A wrapper around NaCl which makes working with cryptography even easier"
+readme = "README.md"
+homepage = "https://github.com/darkwyrm/eznacl"
+repository = "https://github.com/darkwyrm/eznacl"
+license = "MPL-2.0-no-copyleft-exception"
+keywords = ["crypto","nacl"]
+categories = ["cryptography"]
+exclude = [".gitignore"]
+
+[dependencies]
+sodiumoxide = "0.2.7"
