@@ -19,7 +19,7 @@
 //! 
 //! Regular usage of a CryptoString mostly involves creating an instance from other data. The constructor can take a CryptoString-formatted string or a string prefix and some raw bytes. Once data has been put into the instance, getting it back out is just a matter of casting to a string, or calling `to_string()`, `to_bytes()`, or `to_raw()`. The last of these three methods only returns the raw data stored in the object.
 
-use base85::encode;
+use base85::{encode, decode};
 use regex::Regex;
 
 lazy_static! {
@@ -71,6 +71,11 @@ impl CryptoString {
 
 	pub fn as_bytes(&self) -> &[u8] {
 		self.string.as_bytes()
+	}
+
+	pub fn as_raw(&self) -> Vec<u8> {
+		let list: Vec<&str> = self.string.split(":").collect();
+		return decode(list[1]).unwrap()
 	}
 
 	pub fn as_str(&self) -> &str {
