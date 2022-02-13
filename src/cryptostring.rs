@@ -19,20 +19,21 @@
 //! 
 //! Regular usage of a CryptoString mostly involves creating an instance from other data. The constructor can take a CryptoString-formatted string or a string prefix and some raw bytes. Once data has been put into the instance, getting it back out is just a matter of casting to a string, or calling `to_string()`, `to_bytes()`, or `to_raw()`. The last of these three methods only returns the raw data stored in the object.
 
+use base85::encode;
 use regex::Regex;
-use core::ops::Range;
 
 lazy_static! {
 	static ref RE_CRYPTOSTRING_FORMAT: regex::Regex = {
 		Regex::new(r"^([A-Z0-9-]{1,24}):([0-9A-Za-z!#$%&()*+-;<=>?@^_`{|}~]+)$").unwrap()
 	};
+	static ref RE_CRYPTOSTRING_PREFIX: regex::Regex = {
+		Regex::new(r"^([A-Z0-9-]{1,24})$").unwrap()
+	};
 }
 
 #[derive(Debug)]
 pub struct CryptoString {
-	string: String,
-	prefix: Range<usize>,
-	data: Range<usize>,
+	string: String
 }
 
 impl ToString for CryptoString {
@@ -46,15 +47,26 @@ impl CryptoString {
 	pub fn from(s: &str) -> Option<CryptoString> {
 		let caps = RE_CRYPTOSTRING_FORMAT.captures(s);
 		match caps {
-			Some(c) => {
-				Some(CryptoString {
-					string: String::from(s),
-					prefix: c.get(1).unwrap().range().clone(),
-					data: c.get(2).unwrap().range().clone()
-				})
+			Some(_) => {
+				Some(CryptoString {string: String::from(s)})
 			},
 			_ => None
 		}
+	}
+
+	pub fn from_bytes(algorithm: &str, buffer: &[u8]) -> Option<CryptoString> {
+		if !RE_CRYPTOSTRING_PREFIX.is_match(algorithm) {
+			return None
+		}
+
+		let mut out = CryptoString {string: String::from(algorithm)+":"};
+		let encstr = encode(buffer);
+		if encstr.len() == 0 {
+			return None
+		}
+		out.string.push_str(&encstr);
+
+		Some(out)
 	}
 
 	pub fn as_bytes(&self) -> &[u8] {
@@ -70,10 +82,12 @@ impl CryptoString {
     }
 
 	pub fn prefix(&self) -> &str {
-		&self.string[self.prefix.clone()]
+		let list: Vec<&str> = self.string.split(":").collect();
+		list[0]
 	}
 
 	pub fn data(&self) -> &str {
-		&self.string[self.data.clone()]
+		let list: Vec<&str> = self.string.split(":").collect();
+		list[1]
 	}
 }
