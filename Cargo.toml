@@ -13,4 +13,6 @@ categories = ["cryptography"]
 exclude = [".gitignore"]
 
 [dependencies]
+lazy_static = "1.4.0"
+regex = "1.5.4"
 sodiumoxide = "0.2.7"

@@ -19,38 +19,61 @@
 //! 
 //! Regular usage of a CryptoString mostly involves creating an instance from other data. The constructor can take a CryptoString-formatted string or a string prefix and some raw bytes. Once data has been put into the instance, getting it back out is just a matter of casting to a string, or calling `to_string()`, `to_bytes()`, or `to_raw()`. The last of these three methods only returns the raw data stored in the object.
 
-#[derive(Debug)]
-pub struct CryptoString<'a> {
-	totaldata: String,
-	prefix: &'a str,
-	data: &'a str,
+use regex::Regex;
+use core::ops::Range;
+
+lazy_static! {
+	static ref RE_CRYPTOSTRING_FORMAT: regex::Regex = {
+		Regex::new(r"^([A-Z0-9-]{1,24}):([0-9A-Za-z!#$%&()*+-;<=>?@^_`{|}~]+)$").unwrap()
+	};
 }
 
-impl ToString for CryptoString<'_> {
+#[derive(Debug)]
+pub struct CryptoString {
+	string: String,
+	prefix: Range<usize>,
+	data: Range<usize>,
+}
+
+impl ToString for CryptoString {
 	fn to_string(&self) -> String {
-		self.totaldata.clone()
+		self.string.clone()
 	}
 }
 
-impl CryptoString<'_> {
+impl CryptoString {
 	
+	pub fn from(s: &str) -> Option<CryptoString> {
+		let caps = RE_CRYPTOSTRING_FORMAT.captures(s);
+		match caps {
+			Some(c) => {
+				Some(CryptoString {
+					string: String::from(s),
+					prefix: c.get(1).unwrap().range().clone(),
+					data: c.get(2).unwrap().range().clone()
+				})
+			},
+			_ => None
+		}
+	}
+
 	pub fn as_bytes(&self) -> &[u8] {
-		self.totaldata.as_bytes()
+		self.string.as_bytes()
 	}
 
 	pub fn as_str(&self) -> &str {
-		self.totaldata.as_str()
+		self.string.as_str()
 	}
 
 	pub fn is_empty(&self) -> bool {
-        self.totaldata.is_empty()
+        self.string.is_empty()
     }
 
 	pub fn prefix(&self) -> &str {
-		self.prefix
+		&self.string[self.prefix.clone()]
 	}
 
 	pub fn data(&self) -> &str {
-		self.data
+		&self.string[self.data.clone()]
 	}
 }
