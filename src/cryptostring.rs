@@ -96,3 +96,37 @@ impl CryptoString {
 		list[1]
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	#[test]
+	fn cs_test_from() {
+		let testlist = [
+			"ED25519:r#r*RiXIN-0n)BzP3bv`LA&t4LFEQNF0Q@$N~RF*",
+			"BLAKE2B-256:-Zz4O7J;m#-rB)2llQ*xTHjtblwm&kruUVa_v(&W",
+			"CURVE25519:SNhj2K`hgBd8>G>lW$!pXiM7S-B!Fbd9jT2&{{Az"
+		];
+	
+		for test in testlist.iter() {
+			match crate::CryptoString::from(test) {
+				None => panic!("from() test failure"),
+				_ => { /* Do nothing */ },
+			}
+		}
+
+		let faillist = [
+			"ED25519",
+			":123456789",
+			"$ILLEGAL:123456789",
+			" ",
+			""
+		];
+		for test in faillist.iter() {
+			match crate::CryptoString::from(test) {
+				None => { /* Do nothing */ },
+				_ => panic!("from() bad value test failure"),
+			}
+		}
+
+	}
+}
