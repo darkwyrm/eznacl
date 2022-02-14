@@ -129,4 +129,29 @@ mod tests {
 		}
 
 	}
+
+	#[test]
+	fn cs_test_from_bytes_plus() {
+		let faillist = [
+			("", ":123456789"),
+			("$ILLEGAL", "123456789"),
+			("TEST", ""),
+		];
+		for test in faillist.iter() {
+			match crate::CryptoString::from_bytes(test.0, test.1.as_bytes()) {
+				None => { /* Do nothing */ },
+				_ => panic!("from_bytes() bad value test failure"),
+			}
+		}
+		
+		let cs = match crate::CryptoString::from_bytes("TEST", b"aaaaaa") {
+			Some(v) => v,
+			_ => panic!("from_bytes() test failure"),
+		};
+		assert_eq!(cs.prefix(), "TEST");
+		assert_eq!(cs.as_str(), "TEST:VPRomVPO");
+		assert_eq!(cs.as_bytes(), b"TEST:VPRomVPO");
+		assert_eq!(cs.as_raw(), b"aaaaaa");
+		assert_eq!(cs.is_empty(), false);
+	}
 }
