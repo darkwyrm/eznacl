@@ -3,9 +3,6 @@ use crate::error::EzNaclError;
 
 // GetHash generates a CryptoString hash of the supplied data
 pub fn get_hash(algorithm: &str, data: &[u8]) -> Result<CryptoString, EzNaclError> {
-	
-	// TODO: Finish get_hash()
-	// BLAKE3-256
 
 	match algorithm.to_lowercase().as_str() {
 		"blake2b-256" => {
