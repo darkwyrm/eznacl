@@ -16,3 +16,9 @@ pub use sign::*;
 
 #[macro_use]
 extern crate lazy_static;
+
+use sodiumoxide;
+
+pub fn init() -> Result<(), ()> {
+	sodiumoxide::init()
+}
