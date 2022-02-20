@@ -65,3 +65,25 @@ pub fn hash_password_enhanced(password: &str, memcost: u32, timecost: u32, threa
 pub fn check_password(password: &str, hash: &str) -> Result<bool, argon2::Error> {
 	argon2::verify_encoded(&hash, password.as_bytes())
 }
+
+#[cfg(test)]
+mod tests {
+	#[test]
+	fn pw_check_hash() {
+		let password = "MyS3cretPassw*rd";
+		let pwhash = crate::hash_password(password, crate::HashStrength::Basic);
+		
+		match crate::check_password(password, &pwhash) {
+			Ok(v) => assert!(v),
+			Err(e) => panic!("{}",e)
+		}
+		
+		// Here we actually tune the password hashing algorithm to be *less* secure, not more, just
+		// to make the test run faster 🤪
+		let pwhash = crate::hash_password_enhanced(password, 65536, 1, 4);
+		match crate::check_password(password, &pwhash) {
+			Ok(v) => assert!(v),
+			Err(e) => panic!("{}", e)
+		}
+	}
+}
