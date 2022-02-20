@@ -60,3 +60,8 @@ pub fn hash_password_enhanced(password: &str, memcost: u32, timecost: u32, threa
 	let hash = argon2::hash_encoded(password.as_bytes(), &salt, &config).unwrap();
 	hash
 }
+
+/// check_password() returns a Result based on if the given password matches the passed hash
+pub fn check_password(password: &str, hash: &str) -> Result<bool, argon2::Error> {
+	argon2::verify_encoded(&hash, password.as_bytes())
+}
