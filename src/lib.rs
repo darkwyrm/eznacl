@@ -10,5 +10,3 @@ pub use password::*;
 
 #[macro_use]
 extern crate lazy_static;
-
-extern crate argon2;
