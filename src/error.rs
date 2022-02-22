@@ -4,7 +4,10 @@ use std::fmt;
 pub enum EzNaclError {
 	DecodingError,
 	DecryptionError,
+	EncodingError,
 	EncryptionError,
+	KeyError,
+	SizeError,
 	UnsupportedAlgorithm
 }
 
@@ -15,7 +18,10 @@ impl fmt::Display for EzNaclError {
 		match self {
 			EzNaclError::DecodingError => write!(f, "Base85 Decoding Error"),
 			EzNaclError::DecryptionError => write!(f, "Decryption Error"),
+			EzNaclError::EncodingError => write!(f, "Encoding Error"),
 			EzNaclError::EncryptionError => write!(f, "Encryption Error"),
+			EzNaclError::KeyError => write!(f, "Key Error"),
+			EzNaclError::SizeError => write!(f, "Size Error"),
 			EzNaclError::UnsupportedAlgorithm => write!(f, "Unsupported Algorithm"),
 		}
 	}
