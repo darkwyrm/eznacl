@@ -1,6 +1,7 @@
 
 use crate::CryptoString;
-use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Encryptor};
+use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Encryptor, Decryptor};
+use crate::error::EzNaclError;
 use sodiumoxide::crypto::secretbox;
 
 /// An XSalsa20 symmetric encryption key
@@ -65,15 +66,41 @@ impl PrivateKey for SecretKey {
 
 impl Encryptor for SecretKey {
 	
-	fn encrypt(self, data: &[u8]) -> Option<CryptoString> {
+	fn encrypt(self, data: &[u8]) -> Result<CryptoString, EzNaclError> {
 
-		let nonce = sodiumoxide::crypto::secretbox::gen_nonce();
+		let nonce = secretbox::gen_nonce();
 		let key = match secretbox::xsalsa20poly1305::Key::from_slice(self.key.as_bytes()) {
 			Some(v) => v,
-			None => return None
+			None => return Err(EzNaclError::KeyError)
 		};
 		let ciphertext = secretbox::seal(data, &nonce, &key);
 
-		CryptoString::from_bytes("XSALSA20", &ciphertext)
+		match CryptoString::from_bytes("XSALSA20", &ciphertext) {
+			Some(v) => Ok(v),
+			None => Err(EzNaclError::EncodingError)
+		}
 	}
 }
+
+impl Decryptor for SecretKey {
+
+	fn decrypt(self, encdata: &CryptoString) -> Result<Vec<u8>, crate::EzNaclError> {
+
+		let ciphertext = encdata.as_raw();
+		let key = match secretbox::xsalsa20poly1305::Key::from_slice(self.key.as_bytes()) {
+			Some(v) => v,
+			None => return Err(EzNaclError::KeyError)
+		};
+		let nonce = match secretbox::xsalsa20poly1305::Nonce::from_slice(
+			&ciphertext[..secretbox::xsalsa20poly1305::KEYBYTES]) {
+				Some(v) => v,
+				None => return Err(EzNaclError::SizeError)
+			};
+
+		match secretbox::open(&ciphertext, &nonce, &key) {
+			Ok(v) => Ok(v),
+			_ => Err(EzNaclError::DecryptionError)
+		}
+	}
+}
+

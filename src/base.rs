@@ -32,17 +32,17 @@ pub trait PrivateKey {
 
 /// The Encryptor trait is implemented by any encryption key
 pub trait Encryptor {
-	fn encrypt(self, data: &[u8]) -> Option<CryptoString>;
+	fn encrypt(self, data: &[u8]) -> Result<CryptoString, EzNaclError>;
 }
 
 /// The Decryptor trait is implemented by any decryption key
 pub trait Decryptor {
-	fn decrypt(self, encdata: &str) -> Option<Vec<u8>>;
+	fn decrypt(self, encdata: &CryptoString) -> Result<Vec<u8>, EzNaclError>;
 }
 
 /// The Sign trait is implemented by any private signing key
 pub trait Sign {
-	fn sign(self, data: &[u8]) -> Option<CryptoString>;
+	fn sign(self, data: &[u8]) -> Result<CryptoString, EzNaclError>;
 }
 
 /// The Verify trait is implemented by any public signature verification key
