@@ -6,6 +6,7 @@ pub use crate::CryptoString;
 pub enum KeyUsage {
 	Signing,
 	Verification,
+	SignVerify,
 	Encryption,
 	Decryption,
 	EncryptDecrypt
