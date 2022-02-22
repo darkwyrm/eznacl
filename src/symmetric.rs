@@ -1,7 +1,7 @@
 
 use crate::CryptoString;
-use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage};
-use sodiumoxide;
+use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Encryptor};
+use sodiumoxide::crypto::secretbox;
 
 /// An XSalsa20 symmetric encryption key
 pub struct SecretKey {
@@ -16,7 +16,7 @@ impl SecretKey {
 
 	/// Generates an XSalsa20 symmetric encryption key.
 	pub fn generate() -> Option<SecretKey> {
-		let raw_key = sodiumoxide::crypto::secretbox::gen_key();
+		let raw_key = secretbox::gen_key();
 		let key = CryptoString::from_bytes("XSALSA20", &raw_key[..])?;
 		Some(SecretKey { key })
 	}
@@ -60,5 +60,20 @@ impl PrivateKey for SecretKey {
 
 	fn get_private_bytes(self) -> Vec<u8> {
 		Vec::from(self.key.as_bytes())
+	}
+}
+
+impl Encryptor for SecretKey {
+	
+	fn encrypt(self, data: &[u8]) -> Option<CryptoString> {
+
+		let nonce = sodiumoxide::crypto::secretbox::gen_nonce();
+		let key = match secretbox::xsalsa20poly1305::Key::from_slice(self.key.as_bytes()) {
+			Some(v) => v,
+			None => return None
+		};
+		let ciphertext = secretbox::seal(data, &nonce, &key);
+
+		CryptoString::from_bytes("XSALSA20", &ciphertext)
 	}
 }
