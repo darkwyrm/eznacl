@@ -1,5 +1,5 @@
 use crate::CryptoString;
-use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Sign};
+use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Sign, VerifySignature};
 use sodiumoxide::crypto::sign;
 use crate::error::EzNaclError;
 
@@ -17,7 +17,7 @@ impl SigningPair {
 
 	/// Generates a ED25519 asymmetric encryption keypair.
 	pub fn generate() -> Option<SigningPair> {
-		
+
 		let (raw_vkey, raw_skey) = sign::gen_keypair();
 		let verkey = CryptoString::from_bytes("ED25519", &raw_vkey[..])?;
 
@@ -81,5 +81,25 @@ impl Sign for SigningPair {
 			Some(cs) => Ok(cs),
 			_ => Err(EzNaclError::EncodingError)
 		}
+	}
+}
+
+impl VerifySignature for SigningPair {
+
+	fn verify(self, data: &[u8], signature: &CryptoString) -> Result<bool, EzNaclError> {
+
+		let vkey = match sign::ed25519::PublicKey::from_slice(self.verkey.as_bytes()) {
+			Some(v) => v,
+			None => return Err(EzNaclError::KeyError)
+		};
+
+		let rawsig = match sign::ed25519::Signature::from_bytes(signature.as_bytes()) {
+			Ok(s) => s,
+
+			// TODO: Create a signature error
+			_ => return Err(EzNaclError::KeyError),
+		};
+
+		Ok(sign::verify_detached(&rawsig, data, &vkey))
 	}
 }

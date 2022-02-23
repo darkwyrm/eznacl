@@ -48,5 +48,5 @@ pub trait Sign {
 
 /// The Verify trait is implemented by any public signature verification key
 pub trait VerifySignature {
-	fn verify(self, data: &u8, signature: &CryptoString) -> Result<bool, EzNaclError>;
+	fn verify(self, data: &[u8], signature: &CryptoString) -> Result<bool, EzNaclError>;
 }
