@@ -95,9 +95,7 @@ impl VerifySignature for SigningPair {
 
 		let rawsig = match sign::ed25519::Signature::from_bytes(signature.as_bytes()) {
 			Ok(s) => s,
-
-			// TODO: Create a signature error
-			_ => return Err(EzNaclError::KeyError),
+			_ => return Err(EzNaclError::SignatureError),
 		};
 
 		Ok(sign::verify_detached(&rawsig, data, &vkey))

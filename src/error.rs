@@ -7,6 +7,7 @@ pub enum EzNaclError {
 	EncodingError,
 	EncryptionError,
 	KeyError,
+	SignatureError,
 	SizeError,
 	UnsupportedAlgorithm
 }
@@ -21,6 +22,7 @@ impl fmt::Display for EzNaclError {
 			EzNaclError::EncodingError => write!(f, "Encoding Error"),
 			EzNaclError::EncryptionError => write!(f, "Encryption Error"),
 			EzNaclError::KeyError => write!(f, "Key Error"),
+			EzNaclError::SignatureError => write!(f, "Signature Error"),
 			EzNaclError::SizeError => write!(f, "Size Error"),
 			EzNaclError::UnsupportedAlgorithm => write!(f, "Unsupported Algorithm"),
 		}
