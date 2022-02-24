@@ -15,6 +15,20 @@ impl SigningPair {
 		SigningPair { verkey, signkey }
 	}
 
+	pub fn from_strings(verstr: &str, signstr: &str) -> Option<SigningPair> {
+		
+		let vercs = match CryptoString::from(verstr) {
+			Some(cs) => cs,
+			None => return None
+		};
+		let signcs = match CryptoString::from(signstr) {
+			Some(cs) => cs,
+			None => return None
+		};
+
+		Some(SigningPair { verkey: vercs, signkey: signcs })
+	}
+	
 	/// Generates a ED25519 asymmetric encryption keypair.
 	pub fn generate() -> Option<SigningPair> {
 
@@ -28,48 +42,48 @@ impl SigningPair {
 
 impl CryptoInfo for SigningPair {
 
-	fn get_usage(self) -> KeyUsage {
-		return KeyUsage::SignVerify;
+	fn get_usage(&self) -> KeyUsage {
+		KeyUsage::SignVerify
 	}
 
-	fn get_algorithm(self) -> String {
-		return String::from("ED25519")
+	fn get_algorithm(&self) -> String {
+		String::from("ED25519")
 	}
 }
 
 impl PublicKey for SigningPair {
 
-	fn get_public_key(self) -> CryptoString {
+	fn get_public_key(&self) -> CryptoString {
 		self.verkey.clone()
 	}
 
-	fn get_public_str(self) -> String {
+	fn get_public_str(&self) -> String {
 		String::from(self.verkey.as_str())
 	}
 
-	fn get_public_bytes(self) -> Vec<u8> {
+	fn get_public_bytes(&self) -> Vec<u8> {
 		Vec::from(self.verkey.as_bytes())
 	}
 }
 
 impl PrivateKey for SigningPair {
 
-	fn get_private_key(self) -> CryptoString {
+	fn get_private_key(&self) -> CryptoString {
 		self.signkey.clone()
 	}
 
-	fn get_private_str(self) -> String {
+	fn get_private_str(&self) -> String {
 		String::from(self.signkey.as_str())
 	}
 
-	fn get_private_bytes(self) -> Vec<u8> {
+	fn get_private_bytes(&self) -> Vec<u8> {
 		Vec::from(self.signkey.as_bytes())
 	}
 }
 
 impl Sign for SigningPair {
 
-	fn sign(self, data: &[u8]) -> Result<CryptoString, EzNaclError> {
+	fn sign(&self, data: &[u8]) -> Result<CryptoString, EzNaclError> {
 
 		let skey = match sign::ed25519::SecretKey::from_slice(self.signkey.as_bytes()) {
 			Some(v) => v,
@@ -86,7 +100,7 @@ impl Sign for SigningPair {
 
 impl VerifySignature for SigningPair {
 
-	fn verify(self, data: &[u8], signature: &CryptoString) -> Result<bool, EzNaclError> {
+	fn verify(&self, data: &[u8], signature: &CryptoString) -> Result<bool, EzNaclError> {
 
 		let vkey = match sign::ed25519::PublicKey::from_slice(self.verkey.as_bytes()) {
 			Some(v) => v,

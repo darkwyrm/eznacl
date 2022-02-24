@@ -25,51 +25,51 @@ impl SecretKey {
 
 impl CryptoInfo for SecretKey {
 
-	fn get_usage(self) -> KeyUsage {
+	fn get_usage(&self) -> KeyUsage {
 		return KeyUsage::EncryptDecrypt;
 	}
 
-	fn get_algorithm(self) -> String {
+	fn get_algorithm(&self) -> String {
 		return String::from("XSALSA20")
 	}
 }
 
 impl PublicKey for SecretKey {
 
-	fn get_public_key(self) -> CryptoString {
+	fn get_public_key(&self) -> CryptoString {
 		self.key.clone()
 	}
 
-	fn get_public_str(self) -> String {
+	fn get_public_str(&self) -> String {
 		String::from(self.key.as_str())
 	}
 
-	fn get_public_bytes(self) -> Vec<u8> {
+	fn get_public_bytes(&self) -> Vec<u8> {
 		Vec::from(self.key.as_bytes())
 	}
 }
 
 impl PrivateKey for SecretKey {
 
-	fn get_private_key(self) -> CryptoString {
+	fn get_private_key(&self) -> CryptoString {
 		self.key.clone()
 	}
 
-	fn get_private_str(self) -> String {
+	fn get_private_str(&self) -> String {
 		String::from(self.key.as_str())
 	}
 
-	fn get_private_bytes(self) -> Vec<u8> {
+	fn get_private_bytes(&self) -> Vec<u8> {
 		Vec::from(self.key.as_bytes())
 	}
 }
 
 impl Encryptor for SecretKey {
 	
-	fn encrypt(self, data: &[u8]) -> Result<CryptoString, EzNaclError> {
+	fn encrypt(&self, data: &[u8]) -> Result<CryptoString, EzNaclError> {
 
 		let nonce = secretbox::gen_nonce();
-		let key = match secretbox::xsalsa20poly1305::Key::from_slice(self.key.as_bytes()) {
+		let key = match secretbox::xsalsa20poly1305::Key::from_slice(&self.key.as_bytes()) {
 			Some(v) => v,
 			None => return Err(EzNaclError::KeyError)
 		};
@@ -84,10 +84,10 @@ impl Encryptor for SecretKey {
 
 impl Decryptor for SecretKey {
 
-	fn decrypt(self, encdata: &CryptoString) -> Result<Vec<u8>, crate::EzNaclError> {
+	fn decrypt(&self, encdata: &CryptoString) -> Result<Vec<u8>, crate::EzNaclError> {
 
 		let ciphertext = encdata.as_raw();
-		let key = match secretbox::xsalsa20poly1305::Key::from_slice(self.key.as_bytes()) {
+		let key = match secretbox::xsalsa20poly1305::Key::from_slice(&self.key.as_bytes()) {
 			Some(v) => v,
 			None => return Err(EzNaclError::KeyError)
 		};
