@@ -35,7 +35,7 @@ impl SigningPair {
 		let (raw_vkey, raw_skey) = sign::gen_keypair();
 		let verkey = CryptoString::from_bytes("ED25519", &raw_vkey[..])?;
 
-		let signkey = CryptoString::from_bytes("ED25519", &raw_skey[..])?;
+		let signkey = CryptoString::from_bytes("ED25519", &raw_skey[..32])?;
 		Some(SigningPair { verkey, signkey })
 	}
 }
@@ -85,7 +85,9 @@ impl Sign for SigningPair {
 
 	fn sign(&self, data: &[u8]) -> Result<CryptoString, EzNaclError> {
 
-		let skey = match sign::ed25519::SecretKey::from_slice(&self.signkey.as_raw()) {
+		let mut fullkey = self.signkey.as_raw();
+		fullkey.append(&mut self.verkey.as_raw());
+		let skey = match sign::ed25519::SecretKey::from_slice(&fullkey) {
 			Some(v) => v,
 			None => return Err(EzNaclError::KeyError)
 		};
@@ -107,11 +109,38 @@ impl VerifySignature for SigningPair {
 			None => return Err(EzNaclError::KeyError)
 		};
 
-		let rawsig = match sign::ed25519::Signature::from_bytes(signature.as_bytes()) {
+		let rawsig = match sign::ed25519::Signature::from_bytes(&signature.as_raw()) {
 			Ok(s) => s,
 			_ => return Err(EzNaclError::SignatureError),
 		};
 
 		Ok(sign::verify_detached(&rawsig, data, &vkey))
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use crate::*;
+	
+	#[test]
+	fn sign_verify_test() {
+		
+		let keypair = match crate::SigningPair::from_strings(
+			"ED25519:PnY~pK2|;AYO#1Z;B%T$2}E$^kIpL=>>VzfMKsDx",
+			"ED25519:{^A@`5N*T%5ybCU%be892x6%*Rb2rnYd=SGeO4jF") {
+				Some(kp) => kp,
+				None => panic!("sign_verify_test failed to create keypair")
+			};
+		
+			let testdata = "This is some signing test data";
+		let signature = match keypair.sign(testdata.as_bytes()) {
+			Ok(cs) => cs,
+			Err(_) => panic!("sign_verify_test signing failure")
+		};
+		
+		match keypair.verify(&testdata.as_bytes(), &signature) {
+			Ok(v) => assert!(v, "sign_verify_test failure to verify signature"),
+			Err(_) => panic!("sign_verify_test verify() error")
+		};
 	}
 }
