@@ -85,7 +85,7 @@ impl Sign for SigningPair {
 
 	fn sign(&self, data: &[u8]) -> Result<CryptoString, EzNaclError> {
 
-		let skey = match sign::ed25519::SecretKey::from_slice(self.signkey.as_bytes()) {
+		let skey = match sign::ed25519::SecretKey::from_slice(&self.signkey.as_raw()) {
 			Some(v) => v,
 			None => return Err(EzNaclError::KeyError)
 		};
@@ -102,7 +102,7 @@ impl VerifySignature for SigningPair {
 
 	fn verify(&self, data: &[u8], signature: &CryptoString) -> Result<bool, EzNaclError> {
 
-		let vkey = match sign::ed25519::PublicKey::from_slice(self.verkey.as_bytes()) {
+		let vkey = match sign::ed25519::PublicKey::from_slice(&self.verkey.as_raw()) {
 			Some(v) => v,
 			None => return Err(EzNaclError::KeyError)
 		};
