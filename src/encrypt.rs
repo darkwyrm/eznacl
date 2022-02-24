@@ -86,7 +86,7 @@ impl Encryptor for EncryptionPair {
 	
 	fn encrypt(&self, data: &[u8]) -> Result<CryptoString, EzNaclError> {
 
-		let rawkey = match crypto::box_::PublicKey::from_slice(&self.pubkey.as_bytes()) {
+		let rawkey = match crypto::box_::PublicKey::from_slice(&self.pubkey.as_raw()) {
 			Some(v) => v,
 			None => return Err(EzNaclError::KeyError)
 		};
@@ -104,11 +104,11 @@ impl Decryptor for EncryptionPair {
 	fn decrypt(&self, encdata: &CryptoString) -> Result<Vec<u8>, crate::EzNaclError> {
 
 		let ciphertext = encdata.as_raw();
-		let rpubkey = match crypto::box_::PublicKey::from_slice(&self.pubkey.as_bytes()) {
+		let rpubkey = match crypto::box_::PublicKey::from_slice(&self.pubkey.as_raw()) {
 			Some(v) => v,
 			None => return Err(EzNaclError::KeyError)
 		};
-		let rprivkey = match crypto::box_::SecretKey::from_slice(&self.privkey.as_bytes()) {
+		let rprivkey = match crypto::box_::SecretKey::from_slice(&self.privkey.as_raw()) {
 			Some(v) => v,
 			None => return Err(EzNaclError::KeyError)
 		};
@@ -146,6 +146,11 @@ mod tests {
 			Err(_) => panic!("encrypt_decrypt_test decryption failure")
 		};
 		
-		assert_eq!(testdata, String::from_utf8(decdata));
+		let decstring = match String::from_utf8(decdata) {
+			Ok(s) => s,
+			Err(_) => panic!("encrypt_decrypt_test failure decoding decrypted data"),
+		};
+
+		assert_eq!(testdata, decstring);
 	}
 }
