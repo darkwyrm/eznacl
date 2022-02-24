@@ -15,12 +15,28 @@ impl EncryptionPair {
 		EncryptionPair { pubkey, privkey }
 	}
 
+	pub fn from_strings(pubstr: &str, privstr: &str) -> Option<EncryptionPair> {
+		
+		let pubcs = match CryptoString::from(pubstr) {
+			Some(cs) => cs,
+			None => return None
+		};
+		let privcs = match CryptoString::from(privstr) {
+			Some(cs) => cs,
+			None => return None
+		};
+
+		Some(EncryptionPair { pubkey: pubcs, privkey: privcs })
+	}
+
 	/// Generates a Curve25519 asymmetric encryption keypair.
 	pub fn generate() -> Option<EncryptionPair> {
+
 		let (raw_ekey, raw_dkey) = crypto::box_::gen_keypair();
 		let pubkey = CryptoString::from_bytes("CURVE25519", &raw_ekey[..])?;
 
 		let privkey = CryptoString::from_bytes("CURVE25519", &raw_dkey[..])?;
+		
 		Some(EncryptionPair { pubkey, privkey })
 	}
 }
@@ -104,3 +120,29 @@ impl Decryptor for EncryptionPair {
 	}
 }
 
+#[cfg(test)]
+mod tests {
+	#[test]
+	fn encrypt_decrypt_test() {
+		// pubkey := NewCS("CURVE25519:(B2XX5|<+lOSR>_0mQ=KX4o<aOvXe6M`Z5ldINd`")
+		// privkey := NewCS("CURVE25519:(Rj5)mmd1|YqlLCUP0vE;YZ#o;tJxtlAIzmPD7b&")
+		// keypair := NewEncryptionPair(pubkey, privkey)
+	
+		// testData := "This is some encryption test data"
+		// encryptedData, err := keypair.Encrypt([]byte(testData))
+		// if err != nil || encryptedData == "" {
+		// 	t.Fatal("EncryptedPair.Encrypt() failed")
+		// }
+	
+		// decryptedRaw, err := keypair.Decrypt(encryptedData)
+		// if err != nil || decryptedRaw == nil {
+		// 	t.Fatal("EncryptedPair.Decrypt() failed")
+		// }
+	
+		// if string(decryptedRaw) != testData {
+		// 	t.Fatal("EncryptedPair decrypted data mismatch")
+		// }
+		
+
+	}
+}
