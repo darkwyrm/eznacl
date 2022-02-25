@@ -15,6 +15,16 @@ impl SecretKey {
 		SecretKey { key }
 	}
 
+	pub fn from_string(keystr: &str) -> Option<SecretKey> {
+		
+		let keycs = match CryptoString::from(keystr) {
+			Some(cs) => cs,
+			None => return None
+		};
+
+		Some(SecretKey { key: keycs })
+	}
+
 	/// Generates an XSalsa20 symmetric encryption key.
 	pub fn generate() -> Option<SecretKey> {
 		let raw_key = secretbox::gen_key();
@@ -73,9 +83,13 @@ impl Encryptor for SecretKey {
 			Some(v) => v,
 			None => return Err(EzNaclError::KeyError)
 		};
-		let ciphertext = secretbox::seal(data, &nonce, &key);
+		let mut ciphertext = secretbox::seal(data, &nonce, &key);
 
-		match CryptoString::from_bytes("XSALSA20", &ciphertext) {
+		let mut out = Vec::new();
+		out.extend_from_slice(&nonce[..]);
+		out.append(&mut ciphertext);
+
+		match CryptoString::from_bytes("XSALSA20", &out) {
 			Some(v) => Ok(v),
 			None => Err(EzNaclError::EncodingError)
 		}
@@ -92,15 +106,49 @@ impl Decryptor for SecretKey {
 			None => return Err(EzNaclError::KeyError)
 		};
 		let nonce = match secretbox::xsalsa20poly1305::Nonce::from_slice(
-			&ciphertext[..secretbox::xsalsa20poly1305::KEYBYTES]) {
+			&ciphertext[..secretbox::xsalsa20poly1305::NONCEBYTES]) {
 				Some(v) => v,
 				None => return Err(EzNaclError::SizeError)
 			};
 
-		match secretbox::open(&ciphertext, &nonce, &key) {
+		match secretbox::open(&ciphertext[secretbox::xsalsa20poly1305::NONCEBYTES..], &nonce, &key) {
 			Ok(v) => Ok(v),
 			_ => Err(EzNaclError::DecryptionError)
 		}
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use crate::*;
+	
+	#[test]
+	fn symmetric_encrypt_decrypt_test() {
+
+		let key = match crate::SecretKey::from_string(
+			"XSALSA20:hlibDY}Ls{F!yG83!a#E$|Nd3?MQ@9G=Q{7PB(@O") {
+				Some(k) => k,
+				None => panic!("symmetric_encrypt_decrypt_test failed to create key")
+			};
+	
+		
+		let testdata = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		let encdata = match key.encrypt(testdata.as_bytes()) {
+			Ok(cs) => cs,
+			Err(_) => panic!("symmetric_encrypt_decrypt_test encryption failure")
+		};
+
+		let decdata = match key.decrypt(&encdata) {
+			Ok(cs) => cs,
+			Err(_) => panic!("symmetric_encrypt_decrypt_test decryption failure")
+		};
+		
+		let decstring = match String::from_utf8(decdata) {
+			Ok(s) => s,
+			Err(_) => panic!("symmetric_encrypt_decrypt_test failure decoding decrypted data"),
+		};
+
+		assert_eq!(testdata, decstring);
 	}
 }
 
