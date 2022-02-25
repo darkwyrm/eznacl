@@ -11,10 +11,12 @@ pub struct EncryptionPair {
 
 impl EncryptionPair {
 
+	/// Creates a new EncryptionPair from two CryptoString objects
 	pub fn from(pubkey: CryptoString, privkey: CryptoString) -> EncryptionPair {
 		EncryptionPair { pubkey, privkey }
 	}
 
+	/// Creates a new EncryptionPair from two strings containing CryptoString-formatted data
 	pub fn from_strings(pubstr: &str, privstr: &str) -> Option<EncryptionPair> {
 		
 		let pubcs = match CryptoString::from(pubstr) {
@@ -43,10 +45,12 @@ impl EncryptionPair {
 
 impl CryptoInfo for EncryptionPair {
 
+	// Indicates that the EncryptionPair object can perform both encryption and decryption
 	fn get_usage(&self) -> KeyUsage {
 		KeyUsage::EncryptDecrypt
 	}
 
+	// Returns the string "CURVE25519"
 	fn get_algorithm(&self) -> String {
 		String::from("CURVE25519")
 	}
@@ -54,14 +58,17 @@ impl CryptoInfo for EncryptionPair {
 
 impl PublicKey for EncryptionPair {
 
+	/// Returns the public key as a CryptoString object
 	fn get_public_key(&self) -> CryptoString {
 		self.pubkey.clone()
 	}
 
+	/// Returns the public key as a string
 	fn get_public_str(&self) -> String {
 		String::from(self.pubkey.as_str())
 	}
 
+	/// Returns the public key as a byte list
 	fn get_public_bytes(&self) -> Vec<u8> {
 		Vec::from(self.pubkey.as_bytes())
 	}
@@ -69,14 +76,17 @@ impl PublicKey for EncryptionPair {
 
 impl PrivateKey for EncryptionPair {
 
+	/// Returns the private key as a CryptoString object
 	fn get_private_key(&self) -> CryptoString {
 		self.privkey.clone()
 	}
 
+	/// Returns the private key as a string
 	fn get_private_str(&self) -> String {
 		String::from(self.privkey.as_str())
 	}
 
+	/// Returns the private key as a byte list
 	fn get_private_bytes(&self) -> Vec<u8> {
 		Vec::from(self.privkey.as_bytes())
 	}
@@ -84,6 +94,8 @@ impl PrivateKey for EncryptionPair {
 
 impl Encryptor for EncryptionPair {
 	
+	/// Encrypts the provided data using the Curve25519 algorithm. Note that this is slower than
+	/// symmetric encryption and should be used only on small data sets.
 	fn encrypt(&self, data: &[u8]) -> Result<CryptoString, EzNaclError> {
 
 		let rawkey = match crypto::box_::PublicKey::from_slice(&self.pubkey.as_raw()) {
@@ -101,6 +113,8 @@ impl Encryptor for EncryptionPair {
 
 impl Decryptor for EncryptionPair {
 
+	/// Decrypts the provided Curve25519-encrypted data. Note that this is slower than
+	/// symmetric encryption and should be used only on small data sets.
 	fn decrypt(&self, encdata: &CryptoString) -> Result<Vec<u8>, crate::EzNaclError> {
 
 		let ciphertext = encdata.as_raw();
