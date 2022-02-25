@@ -3,7 +3,7 @@ use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Sign, VerifySigna
 use sodiumoxide::crypto::sign;
 use crate::error::EzNaclError;
 
-/// An ED25519 asymmetric signing keypair
+/// An Ed25519 asymmetric signing keypair
 pub struct SigningPair {
 	verkey: CryptoString,
 	signkey: CryptoString,

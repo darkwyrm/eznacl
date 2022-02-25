@@ -2,7 +2,8 @@
 pub use crate::EzNaclError;
 pub use crate::CryptoString;
 
-/// The KeyUsage type denotes the usage of a cryptography key.
+/// The KeyUsage type denotes the usage of a cryptography key, such as encryption, decryption, or
+/// both.
 pub enum KeyUsage {
 	Signing,
 	Verification,

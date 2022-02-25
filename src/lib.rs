@@ -21,6 +21,7 @@ extern crate lazy_static;
 
 use sodiumoxide;
 
+/// Initializes the underlying SodiumOxide library, which is needed for thread safety.
 pub fn init() -> Result<(), ()> {
 	sodiumoxide::init()
 }
