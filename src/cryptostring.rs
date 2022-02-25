@@ -43,7 +43,7 @@ impl ToString for CryptoString {
 }
 
 impl CryptoString {
-	
+	/// Creates a new CryptoString from a string containing CryptoString-formatted data
 	pub fn from(s: &str) -> Option<CryptoString> {
 		let caps = RE_CRYPTOSTRING_FORMAT.captures(s);
 		match caps {
@@ -54,6 +54,7 @@ impl CryptoString {
 		}
 	}
 
+	/// Creates a new CryptoString from a string containing the algorithm and raw data
 	pub fn from_bytes(algorithm: &str, buffer: &[u8]) -> Option<CryptoString> {
 		if !RE_CRYPTOSTRING_PREFIX.is_match(algorithm) {
 			return None
@@ -69,28 +70,34 @@ impl CryptoString {
 		Some(out)
 	}
 
+	/// Returns the CryptoString data as a string of bytes
 	pub fn as_bytes(&self) -> &[u8] {
 		self.string.as_bytes()
 	}
 
+	/// Creates a new Vector of bytes containing the object's raw data
 	pub fn as_raw(&self) -> Vec<u8> {
 		let list: Vec<&str> = self.string.split(":").collect();
 		return decode(list[1]).unwrap()
 	}
 
+	/// Returns the object's contents as  a string
 	pub fn as_str(&self) -> &str {
 		self.string.as_str()
 	}
 
+	/// Returns true if empty
 	pub fn is_empty(&self) -> bool {
         self.string.is_empty()
     }
 
+	/// Returns the object's algorithm prefix
 	pub fn prefix(&self) -> &str {
 		let list: Vec<&str> = self.string.split(":").collect();
 		list[0]
 	}
 
+	/// Returns the object's encoded data
 	pub fn data(&self) -> &str {
 		let list: Vec<&str> = self.string.split(":").collect();
 		list[1]
