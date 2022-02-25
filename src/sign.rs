@@ -10,11 +10,12 @@ pub struct SigningPair {
 }
 
 impl SigningPair {
-
+	/// Creates a SigningPair from two CryptoString objects
 	pub fn from(verkey: CryptoString, signkey: CryptoString) -> SigningPair {
 		SigningPair { verkey, signkey }
 	}
 
+	/// Creates a SigningPair from two strings containing CryptoString-formatted data
 	pub fn from_strings(verstr: &str, signstr: &str) -> Option<SigningPair> {
 		
 		let vercs = match CryptoString::from(verstr) {
@@ -29,7 +30,7 @@ impl SigningPair {
 		Some(SigningPair { verkey: vercs, signkey: signcs })
 	}
 	
-	/// Generates a ED25519 asymmetric encryption keypair.
+	/// Generates a new ED25519 asymmetric encryption keypair.
 	pub fn generate() -> Option<SigningPair> {
 
 		let (raw_vkey, raw_skey) = sign::gen_keypair();
@@ -42,10 +43,12 @@ impl SigningPair {
 
 impl CryptoInfo for SigningPair {
 
+	/// Indicates that the SigningPair object can perform both signing and verification
 	fn get_usage(&self) -> KeyUsage {
 		KeyUsage::SignVerify
 	}
 
+	/// Returns the string "ED25519"
 	fn get_algorithm(&self) -> String {
 		String::from("ED25519")
 	}
@@ -53,14 +56,17 @@ impl CryptoInfo for SigningPair {
 
 impl PublicKey for SigningPair {
 
+	/// Returns the public key as a CryptoString object
 	fn get_public_key(&self) -> CryptoString {
 		self.verkey.clone()
 	}
 
+	/// Returns the public key as a string
 	fn get_public_str(&self) -> String {
 		String::from(self.verkey.as_str())
 	}
 
+	/// Returns the public key as a byte list
 	fn get_public_bytes(&self) -> Vec<u8> {
 		Vec::from(self.verkey.as_bytes())
 	}
@@ -68,14 +74,17 @@ impl PublicKey for SigningPair {
 
 impl PrivateKey for SigningPair {
 
+	/// Returns the private key as a CryptoString object
 	fn get_private_key(&self) -> CryptoString {
 		self.signkey.clone()
 	}
 
+	/// Returns the private key as a string
 	fn get_private_str(&self) -> String {
 		String::from(self.signkey.as_str())
 	}
 
+	/// Returns the private key as a byte list
 	fn get_private_bytes(&self) -> Vec<u8> {
 		Vec::from(self.signkey.as_bytes())
 	}
@@ -83,6 +92,7 @@ impl PrivateKey for SigningPair {
 
 impl Sign for SigningPair {
 
+	/// Signs the provided data using the Ed25519 algorithm
 	fn sign(&self, data: &[u8]) -> Result<CryptoString, EzNaclError> {
 
 		let mut fullkey = self.signkey.as_raw();
@@ -102,6 +112,7 @@ impl Sign for SigningPair {
 
 impl VerifySignature for SigningPair {
 
+	/// Verifies the Ed25519 signature against the provided data
 	fn verify(&self, data: &[u8], signature: &CryptoString) -> Result<bool, EzNaclError> {
 
 		let vkey = match sign::ed25519::PublicKey::from_slice(&self.verkey.as_raw()) {

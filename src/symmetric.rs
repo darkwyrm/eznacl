@@ -11,10 +11,12 @@ pub struct SecretKey {
 
 impl SecretKey {
 
+	/// Creates a new SecretKey from a CryptoString object
 	pub fn from(key: CryptoString) -> SecretKey {
 		SecretKey { key }
 	}
 
+	/// Creates a new SecretKey from a string containing CryptoString-formatted data
 	pub fn from_string(keystr: &str) -> Option<SecretKey> {
 		
 		let keycs = match CryptoString::from(keystr) {
@@ -35,10 +37,12 @@ impl SecretKey {
 
 impl CryptoInfo for SecretKey {
 
+	/// Indicates that the SecretKey object can perform both encryption and decryption
 	fn get_usage(&self) -> KeyUsage {
 		return KeyUsage::EncryptDecrypt;
 	}
 
+	/// Returns the string "XSALSA20"
 	fn get_algorithm(&self) -> String {
 		return String::from("XSALSA20")
 	}
@@ -46,14 +50,17 @@ impl CryptoInfo for SecretKey {
 
 impl PublicKey for SecretKey {
 
+	/// Returns the object's key as a CryptoString object
 	fn get_public_key(&self) -> CryptoString {
 		self.key.clone()
 	}
 
+	/// Returns the object's key as a string
 	fn get_public_str(&self) -> String {
 		String::from(self.key.as_str())
 	}
 
+	/// Returns the object's key as a byte list
 	fn get_public_bytes(&self) -> Vec<u8> {
 		Vec::from(self.key.as_bytes())
 	}
@@ -61,14 +68,17 @@ impl PublicKey for SecretKey {
 
 impl PrivateKey for SecretKey {
 
+	/// Returns the object's key as a CryptoString object
 	fn get_private_key(&self) -> CryptoString {
 		self.key.clone()
 	}
 
+	/// Returns the object's key as a string
 	fn get_private_str(&self) -> String {
 		String::from(self.key.as_str())
 	}
 
+	/// Returns the object's key as a byte list
 	fn get_private_bytes(&self) -> Vec<u8> {
 		Vec::from(self.key.as_bytes())
 	}
@@ -76,6 +86,7 @@ impl PrivateKey for SecretKey {
 
 impl Encryptor for SecretKey {
 	
+	/// Encrypts the provided data using the XSalsa20 algorithm.
 	fn encrypt(&self, data: &[u8]) -> Result<CryptoString, EzNaclError> {
 
 		let nonce = secretbox::gen_nonce();
@@ -98,6 +109,7 @@ impl Encryptor for SecretKey {
 
 impl Decryptor for SecretKey {
 
+	/// Decrypts the XSalsa20-encrypted data.
 	fn decrypt(&self, encdata: &CryptoString) -> Result<Vec<u8>, crate::EzNaclError> {
 
 		let ciphertext = encdata.as_raw();

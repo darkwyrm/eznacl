@@ -45,12 +45,12 @@ impl EncryptionPair {
 
 impl CryptoInfo for EncryptionPair {
 
-	// Indicates that the EncryptionPair object can perform both encryption and decryption
+	/// Indicates that the EncryptionPair object can perform both encryption and decryption
 	fn get_usage(&self) -> KeyUsage {
 		KeyUsage::EncryptDecrypt
 	}
 
-	// Returns the string "CURVE25519"
+	/// Returns the string "CURVE25519"
 	fn get_algorithm(&self) -> String {
 		String::from("CURVE25519")
 	}

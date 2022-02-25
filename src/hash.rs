@@ -1,8 +1,8 @@
 use crate::cryptostring::CryptoString;
 use crate::error::EzNaclError;
 
-// GetHash generates a CryptoString hash of the supplied data. Currently the supported algorithms
-// are BLAKE2B-256, BLAKE2B-512, BLAKE3-256, and SHA-256.
+/// GetHash generates a CryptoString hash of the supplied data. Currently the supported algorithms
+/// are BLAKE2B-256, BLAKE2B-512, BLAKE3-256, and SHA-256.
 pub fn get_hash(algorithm: &str, data: &[u8]) -> Result<CryptoString, EzNaclError> {
 
 	match algorithm.to_lowercase().as_str() {
