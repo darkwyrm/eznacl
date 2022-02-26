@@ -168,3 +168,61 @@ mod tests {
 		assert_eq!(testdata, decstring);
 	}
 }
+
+/// A Curve25519 encryption key
+pub struct EncryptionKey {
+	pubkey: CryptoString,
+}
+
+impl EncryptionKey {
+
+	/// Creates a new EncryptionKey from a CryptoString object
+	pub fn from(pubkey: CryptoString) -> EncryptionKey {
+		EncryptionKey { pubkey }
+	}
+
+	/// Creates a new EncryptionKey from a string containing CryptoString-formatted data
+	pub fn from_strings(pubstr: &str) -> Option<EncryptionKey> {
+		
+		let pubcs = match CryptoString::from(pubstr) {
+			Some(cs) => cs,
+			None => return None
+		};
+
+		Some(EncryptionKey { pubkey: pubcs })
+	}
+
+}
+
+impl CryptoInfo for EncryptionKey {
+
+	/// Indicates that the EncryptionKey object can perform both encryption and decryption
+	fn get_usage(&self) -> KeyUsage {
+		KeyUsage::Encrypt
+	}
+
+	/// Returns the string "CURVE25519"
+	fn get_algorithm(&self) -> String {
+		String::from("CURVE25519")
+	}
+}
+
+impl PublicKey for EncryptionKey {
+
+	/// Returns the public key as a CryptoString object
+	fn get_public_key(&self) -> CryptoString {
+		self.pubkey.clone()
+	}
+
+	/// Returns the public key as a string
+	fn get_public_str(&self) -> String {
+		String::from(self.pubkey.as_str())
+	}
+
+	/// Returns the public key as a byte list
+	fn get_public_bytes(&self) -> Vec<u8> {
+		Vec::from(self.pubkey.as_bytes())
+	}
+	
+}
+
