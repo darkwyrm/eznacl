@@ -129,6 +129,61 @@ impl VerifySignature for SigningPair {
 	}
 }
 
+/// An Ed25519 verification key
+pub struct VerificationKey {
+	verkey: CryptoString,
+}
+
+impl VerificationKey {
+	/// Creates a VerificationKey from a CryptoString object
+	pub fn from(verkey: CryptoString) -> VerificationKey {
+		VerificationKey { verkey }
+	}
+
+	/// Creates a VerificationKey from a string containing CryptoString-formatted data
+	pub fn from_string(verstr: &str) -> Option<VerificationKey> {
+		
+		let vercs = match CryptoString::from(verstr) {
+			Some(cs) => cs,
+			None => return None
+		};
+
+		Some(VerificationKey { verkey: vercs })
+	}
+	
+}
+
+impl CryptoInfo for VerificationKey {
+
+	/// Indicates that the VerificationKey object can perform both signing and verification
+	fn get_usage(&self) -> KeyUsage {
+		KeyUsage::SignVerify
+	}
+
+	/// Returns the string "ED25519"
+	fn get_algorithm(&self) -> String {
+		String::from("ED25519")
+	}
+}
+
+impl PublicKey for VerificationKey {
+
+	/// Returns the public key as a CryptoString object
+	fn get_public_key(&self) -> CryptoString {
+		self.verkey.clone()
+	}
+
+	/// Returns the public key as a string
+	fn get_public_str(&self) -> String {
+		String::from(self.verkey.as_str())
+	}
+
+	/// Returns the public key as a byte list
+	fn get_public_bytes(&self) -> Vec<u8> {
+		Vec::from(self.verkey.as_bytes())
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use crate::*;
