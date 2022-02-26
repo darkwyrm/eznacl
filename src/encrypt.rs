@@ -134,41 +134,6 @@ impl Decryptor for EncryptionPair {
 	}
 }
 
-#[cfg(test)]
-mod tests {
-	use crate::*;
-	
-	#[test]
-	fn encrypt_decrypt_test() {
-		
-		let keypair = match crate::EncryptionPair::from_strings(
-			"CURVE25519:(B2XX5|<+lOSR>_0mQ=KX4o<aOvXe6M`Z5ldINd`",
-			"CURVE25519:(Rj5)mmd1|YqlLCUP0vE;YZ#o;tJxtlAIzmPD7b&") {
-				Some(kp) => kp,
-				None => panic!("encrypt_decrypt_test failed to create keypair")
-			};
-	
-		
-		let testdata = "This is some encryption test data";
-		let encdata = match keypair.encrypt(testdata.as_bytes()) {
-			Ok(cs) => cs,
-			Err(_) => panic!("encrypt_decrypt_test encryption failure")
-		};
-		
-		let decdata = match keypair.decrypt(&encdata) {
-			Ok(cs) => cs,
-			Err(_) => panic!("encrypt_decrypt_test decryption failure")
-		};
-		
-		let decstring = match String::from_utf8(decdata) {
-			Ok(s) => s,
-			Err(_) => panic!("encrypt_decrypt_test failure decoding decrypted data"),
-		};
-
-		assert_eq!(testdata, decstring);
-	}
-}
-
 /// A Curve25519 encryption key
 pub struct EncryptionKey {
 	pubkey: CryptoString,
@@ -226,3 +191,37 @@ impl PublicKey for EncryptionKey {
 	
 }
 
+#[cfg(test)]
+mod tests {
+	use crate::*;
+	
+	#[test]
+	fn encrypt_decrypt_test() {
+		
+		let keypair = match crate::EncryptionPair::from_strings(
+			"CURVE25519:(B2XX5|<+lOSR>_0mQ=KX4o<aOvXe6M`Z5ldINd`",
+			"CURVE25519:(Rj5)mmd1|YqlLCUP0vE;YZ#o;tJxtlAIzmPD7b&") {
+				Some(kp) => kp,
+				None => panic!("encrypt_decrypt_test failed to create keypair")
+			};
+	
+		
+		let testdata = "This is some encryption test data";
+		let encdata = match keypair.encrypt(testdata.as_bytes()) {
+			Ok(cs) => cs,
+			Err(_) => panic!("encrypt_decrypt_test encryption failure")
+		};
+		
+		let decdata = match keypair.decrypt(&encdata) {
+			Ok(cs) => cs,
+			Err(_) => panic!("encrypt_decrypt_test decryption failure")
+		};
+		
+		let decstring = match String::from_utf8(decdata) {
+			Ok(s) => s,
+			Err(_) => panic!("encrypt_decrypt_test failure decoding decrypted data"),
+		};
+
+		assert_eq!(testdata, decstring);
+	}
+}
