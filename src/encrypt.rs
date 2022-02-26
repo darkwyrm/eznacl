@@ -182,7 +182,7 @@ impl EncryptionKey {
 	}
 
 	/// Creates a new EncryptionKey from a string containing CryptoString-formatted data
-	pub fn from_strings(pubstr: &str) -> Option<EncryptionKey> {
+	pub fn from_string(pubstr: &str) -> Option<EncryptionKey> {
 		
 		let pubcs = match CryptoString::from(pubstr) {
 			Some(cs) => cs,
