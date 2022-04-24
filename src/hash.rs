@@ -1,8 +1,9 @@
 use crate::cryptostring::CryptoString;
 use crate::error::EzNaclError;
+use tiny_keccak::{KangarooTwelve, Hasher, IntoXof, Xof};
 
 /// GetHash generates a CryptoString hash of the supplied data. Currently the supported algorithms
-/// are BLAKE2B-256, BLAKE2B-512, BLAKE3-256, and SHA-256.
+/// are BLAKE2B-256, BLAKE2B-512, K12-128, BLAKE3-128, and SHA-256.
 pub fn get_hash(algorithm: &str, data: &[u8]) -> Result<CryptoString, EzNaclError> {
 
 	match algorithm.to_lowercase().as_str() {
@@ -26,13 +27,22 @@ pub fn get_hash(algorithm: &str, data: &[u8]) -> Result<CryptoString, EzNaclErro
 			hasher.finalize_variable(&mut buffer).unwrap();
 			Ok(CryptoString::from_bytes("BLAKE2B-512", &buffer).unwrap())
 		},
-		"blake3-256" => {
+		"blake3-128" => {
 			let mut hasher = blake3::Hasher::new();
 			hasher.update(data);
-			let mut buffer = [0; 32];
+			let mut buffer = [0; 16];
 			let mut reader = hasher.finalize_xof();
 			reader.fill(&mut buffer);
-			Ok(CryptoString::from_bytes("BLAKE3-256", &buffer).unwrap())
+			Ok(CryptoString::from_bytes("BLAKE3-128", &buffer).unwrap())
+		},
+		"k12-128" => {
+			let mut hasher = KangarooTwelve::new(b"");
+			hasher.update(data);
+			let mut xof = hasher.into_xof();
+			let mut buffer = [0 as u8; 16];
+			xof.squeeze(&mut buffer);
+			Ok(CryptoString::from_bytes("K12-128", &buffer).unwrap())
+		
 		},
 		"sha-256" => {
 			use sha2::{Sha256, Digest};
@@ -52,10 +62,23 @@ mod tests {
 	fn test_get_hash() {
 		// These are the resulting hashes for the supported algorithms when applied to the string
 		// "aaaaaaaa".
+		let test128list = [
+			("k12-128", String::from(r"K12-128:97SJl1(;{l*XHAdoKR=K")),
+			("blake3-128", String::from(r"BLAKE3-128:vE_TL>ixs8I<**_vPE@w")),
+		];
+
+		for test in test128list.iter() {
+			match crate::get_hash(test.0, b"aaaaaaaa") {
+				Ok(cs) => {
+					assert_eq!(cs.as_str(), test.1)
+				},
+				_ => panic!("get_hash(128) test failure")
+			}
+		}
+
 		let test256list = [
 			("blake2b-256", String::from(r"BLAKE2B-256:?*e?y<{rF)B`7<5U8?bXQhNic6W4lmGlN}~Mu}la")),
 			("sha-256", String::from(r"SHA-256:A3Wp)6`}|qqweQl!=L|-R>C51(W!W+B%4_+&b=VC")),
-			("blake3-256", String::from(r"BLAKE3-256:vE_TL>ixs8I<**_vPE@wnTJom(OOqO$B(KLZ7n{E")),
 		];
 
 		for test in test256list.iter() {
