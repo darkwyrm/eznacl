@@ -3,6 +3,13 @@ use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Sign, VerifySigna
 use sodiumoxide::crypto::sign;
 use crate::error::EzNaclError;
 
+/// Returns the cryptographic signing algorithms supported by the library
+pub fn get_supported_signing_algorithms() -> Vec<String> {
+	vec![
+		String::from("ED25519"),
+	]
+}
+
 /// An Ed25519 asymmetric signing keypair
 pub struct SigningPair {
 	verkey: CryptoString,

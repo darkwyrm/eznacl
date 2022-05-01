@@ -2,6 +2,18 @@ use crate::cryptostring::CryptoString;
 use crate::error::EzNaclError;
 use tiny_keccak::{KangarooTwelve, Hasher, IntoXof, Xof};
 
+/// Returns the hash algorithms supported by the library. NOTE: these algorithms are NOT for
+/// creating password hashes. Please use the hash_password() call for password hashing.
+pub fn get_supported_hash_algorithms() -> Vec<String> {
+	vec![
+		String::from("BLAKE2B-256"),
+		String::from("BLAKE2B-512"),
+		String::from("BLAKE3-128"),
+		String::from("K12-128"),
+		String::from("SHA-256"),
+	]
+}
+
 /// GetHash generates a CryptoString hash of the supplied data. Currently the supported algorithms
 /// are BLAKE2B-256, BLAKE2B-512, K12-128, BLAKE3-128, and SHA-256.
 pub fn get_hash(algorithm: &str, data: &[u8]) -> Result<CryptoString, EzNaclError> {

@@ -3,6 +3,13 @@ use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Encryptor, Decryp
 use sodiumoxide::crypto;
 use crate::error::EzNaclError;
 
+/// Returns the asymmetric encryption algorithms supported by the library
+pub fn get_supported_asymmetric_algorithms() -> Vec<String> {
+	vec![
+		String::from("CURVE25519"),
+	]
+}
+
 /// A Curve25519 asymmetric encryption keypair
 pub struct EncryptionPair {
 	pubkey: CryptoString,

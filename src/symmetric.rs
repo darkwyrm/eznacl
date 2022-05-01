@@ -4,6 +4,13 @@ use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Encryptor, Decryp
 use crate::error::EzNaclError;
 use sodiumoxide::crypto::secretbox;
 
+/// Returns the symmetric encryption algorithms supported by the library
+pub fn get_supported_symmetric_algorithms() -> Vec<String> {
+	vec![
+		String::from("XSALSA20"),
+	]
+}
+
 /// An XSalsa20 symmetric encryption key
 pub struct SecretKey {
 	key: CryptoString
