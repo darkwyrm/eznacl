@@ -34,7 +34,7 @@ lazy_static! {
 
 /// A class to store cryptography-related binary data encoded as text and associated with an
 /// algorithm.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct CryptoString {
 	string: String
 }
