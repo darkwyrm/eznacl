@@ -160,6 +160,25 @@ impl VerificationKey {
 	
 }
 
+impl VerifySignature for VerificationKey {
+
+	/// Verifies the Ed25519 signature against the provided data
+	fn verify(&self, data: &[u8], signature: &CryptoString) -> Result<bool, EzNaclError> {
+
+		let vkey = match sign::ed25519::PublicKey::from_slice(&self.verkey.as_raw()) {
+			Some(v) => v,
+			None => return Err(EzNaclError::KeyError)
+		};
+
+		let rawsig = match sign::ed25519::Signature::from_bytes(&signature.as_raw()) {
+			Ok(s) => s,
+			_ => return Err(EzNaclError::SignatureError),
+		};
+
+		Ok(sign::verify_detached(&rawsig, data, &vkey))
+	}
+}
+
 impl CryptoInfo for VerificationKey {
 
 	/// Indicates that the VerificationKey object can perform both signing and verification
