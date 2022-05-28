@@ -15,7 +15,7 @@ pub enum HashStrength {
 /// hash_password is a simple function to turn a string into a 256-bit Argon2 password hash. If you
 /// don't want to bother fine-tuning your Argon2id parameters and just want something simple and
 /// secure for day-to-day use, use this.
-pub fn hash_password(password: &str, strength: HashStrength) -> String {
+pub fn hash_password(password: &str, strength: &HashStrength) -> String {
 	let mem = match strength {
 		HashStrength::Basic => 0x100_000,	// 1MiB
 		HashStrength::Extra => 0x200_000,	// 2MiB
@@ -71,7 +71,7 @@ mod tests {
 	#[test]
 	fn pw_check_hash() {
 		let password = "MyS3cretPassw*rd";
-		let pwhash = crate::hash_password(password, crate::HashStrength::Basic);
+		let pwhash = crate::hash_password(password, &crate::HashStrength::Basic);
 		
 		match crate::check_password(password, &pwhash) {
 			Ok(v) => assert!(v),

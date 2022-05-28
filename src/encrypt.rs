@@ -19,8 +19,8 @@ pub struct EncryptionPair {
 impl EncryptionPair {
 
 	/// Creates a new EncryptionPair from two CryptoString objects
-	pub fn from(pubkey: CryptoString, privkey: CryptoString) -> EncryptionPair {
-		EncryptionPair { pubkey, privkey }
+	pub fn from(pubkey: &CryptoString, privkey: &CryptoString) -> EncryptionPair {
+		EncryptionPair { pubkey: pubkey.clone(), privkey: privkey.clone() }
 	}
 
 	/// Creates a new EncryptionPair from two strings containing CryptoString-formatted data
@@ -149,8 +149,8 @@ pub struct EncryptionKey {
 impl EncryptionKey {
 
 	/// Creates a new EncryptionKey from a CryptoString object
-	pub fn from(pubkey: CryptoString) -> EncryptionKey {
-		EncryptionKey { pubkey }
+	pub fn from(pubkey: &CryptoString) -> EncryptionKey {
+		EncryptionKey { pubkey: pubkey.clone() }
 	}
 
 	/// Creates a new EncryptionKey from a string containing CryptoString-formatted data

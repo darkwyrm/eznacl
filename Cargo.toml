@@ -1,6 +1,6 @@
 [package]
 name = "eznacl"
-version = "2.1.1"
+version = "3.1.1"
 edition = "2021"
 authors = [ "Jon Yoder <jon@yoder.cloud>"]
 description = "A wrapper around NaCl which makes working with cryptography even easier"

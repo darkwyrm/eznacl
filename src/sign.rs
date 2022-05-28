@@ -18,8 +18,8 @@ pub struct SigningPair {
 
 impl SigningPair {
 	/// Creates a SigningPair from two CryptoString objects
-	pub fn from(verkey: CryptoString, signkey: CryptoString) -> SigningPair {
-		SigningPair { verkey, signkey }
+	pub fn from(verkey: &CryptoString, signkey: &CryptoString) -> SigningPair {
+		SigningPair { verkey: verkey.clone(), signkey: signkey.clone() }
 	}
 
 	/// Creates a SigningPair from two strings containing CryptoString-formatted data
@@ -143,8 +143,8 @@ pub struct VerificationKey {
 
 impl VerificationKey {
 	/// Creates a VerificationKey from a CryptoString object
-	pub fn from(verkey: CryptoString) -> VerificationKey {
-		VerificationKey { verkey }
+	pub fn from(verkey: &CryptoString) -> VerificationKey {
+		VerificationKey { verkey: verkey.clone() }
 	}
 
 	/// Creates a VerificationKey from a string containing CryptoString-formatted data
