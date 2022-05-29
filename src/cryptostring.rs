@@ -22,6 +22,7 @@
 
 use base85::{encode, decode};
 use regex::Regex;
+use std::fmt;
 
 lazy_static! {
 	static ref RE_CRYPTOSTRING_FORMAT: regex::Regex = {
@@ -39,10 +40,10 @@ pub struct CryptoString {
 	string: String
 }
 
-impl ToString for CryptoString {
-	fn to_string(&self) -> String {
-		self.string.clone()
-	}
+impl fmt::Display for CryptoString {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.string)
+    }
 }
 
 impl CryptoString {
