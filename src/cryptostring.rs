@@ -15,8 +15,8 @@
 //! - SHA-256 / SHA-384 / SHA-512
 //! - SHA3-256 / SHA3-384 / SHA3-512
 //! - BLAKE2B-256 / BLAKE2B-512
-//! - BLAKE3-128
-//! - K12-128
+//! - BLAKE3-256
+//! - K12-256
 //! 
 //! Regular usage of a CryptoString mostly involves creating an instance from other data. The constructor can take a CryptoString-formatted string or a string prefix and some raw bytes. Once data has been put into the instance, getting it back out is just a matter of casting to a string, or calling `to_string()`, `to_bytes()`, or `to_raw()`. The last of these three methods only returns the raw data stored in the object.
 

@@ -8,14 +8,14 @@ pub fn get_supported_hash_algorithms() -> Vec<String> {
 	vec![
 		String::from("BLAKE2B-256"),
 		String::from("BLAKE2B-512"),
-		String::from("BLAKE3-128"),
-		String::from("K12-128"),
+		String::from("BLAKE3-256"),
+		String::from("K12-256"),
 		String::from("SHA-256"),
 	]
 }
 
 /// GetHash generates a CryptoString hash of the supplied data. Currently the supported algorithms
-/// are BLAKE2B-256, BLAKE2B-512, K12-128, BLAKE3-128, and SHA-256.
+/// are BLAKE2B-256, BLAKE2B-512, K12-256, BLAKE3-256, and SHA-256.
 pub fn get_hash(algorithm: &str, data: &[u8]) -> Result<CryptoString, EzNaclError> {
 
 	match algorithm.to_lowercase().as_str() {
@@ -39,21 +39,21 @@ pub fn get_hash(algorithm: &str, data: &[u8]) -> Result<CryptoString, EzNaclErro
 			hasher.finalize_variable(&mut buffer).unwrap();
 			Ok(CryptoString::from_bytes("BLAKE2B-512", &buffer).unwrap())
 		},
-		"blake3-128" => {
+		"blake3-256" => {
 			let mut hasher = blake3::Hasher::new();
 			hasher.update(data);
-			let mut buffer = [0; 16];
+			let mut buffer = [0; 32];
 			let mut reader = hasher.finalize_xof();
 			reader.fill(&mut buffer);
-			Ok(CryptoString::from_bytes("BLAKE3-128", &buffer).unwrap())
+			Ok(CryptoString::from_bytes("BLAKE3-256", &buffer).unwrap())
 		},
-		"k12-128" => {
+		"k12-256" => {
 			let mut hasher = KangarooTwelve::new(b"");
 			hasher.update(data);
 			let mut xof = hasher.into_xof();
-			let mut buffer = [0 as u8; 16];
+			let mut buffer = [0 as u8; 32];
 			xof.squeeze(&mut buffer);
-			Ok(CryptoString::from_bytes("K12-128", &buffer).unwrap())
+			Ok(CryptoString::from_bytes("K12-256", &buffer).unwrap())
 		
 		},
 		"sha-256" => {
@@ -75,8 +75,8 @@ mod tests {
 		// These are the resulting hashes for the supported algorithms when applied to the string
 		// "aaaaaaaa".
 		let test128list = [
-			("k12-128", String::from(r"K12-128:97SJl1(;{l*XHAdoKR=K")),
-			("blake3-128", String::from(r"BLAKE3-128:vE_TL>ixs8I<**_vPE@w")),
+			("k12-256", String::from(r"K12-256:97SJl1(;{l*XHAdoKR=K")),
+			("blake3-256", String::from(r"BLAKE3-256:vE_TL>ixs8I<**_vPE@w")),
 		];
 
 		for test in test128list.iter() {
