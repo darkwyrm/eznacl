@@ -23,4 +23,4 @@ regex = "1.5.4"
 rust-argon2 = "1.0.0"
 sha2 = "0.10.1"
 sodiumoxide = "0.2.7"
-tiny-keccak = { version = "2.0.2", features = ["k12"] }
+tiny-keccak = { version = "2.0.2", features = ["k12", "sha3"] }

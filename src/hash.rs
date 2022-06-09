@@ -1,6 +1,5 @@
 use crate::cryptostring::CryptoString;
 use crate::error::EzNaclError;
-use tiny_keccak::{KangarooTwelve, Hasher, IntoXof, Xof};
 
 /// Returns the hash algorithms supported by the library. NOTE: these algorithms are NOT for
 /// creating password hashes. Please use the hash_password() call for password hashing.
@@ -48,6 +47,7 @@ pub fn get_hash(algorithm: &str, data: &[u8]) -> Result<CryptoString, EzNaclErro
 			Ok(CryptoString::from_bytes("BLAKE3-256", &buffer).unwrap())
 		},
 		"k12-256" => {
+			use tiny_keccak::{KangarooTwelve, Hasher, IntoXof, Xof};
 			let mut hasher = KangarooTwelve::new(b"");
 			hasher.update(data);
 			let mut xof = hasher.into_xof();
@@ -62,6 +62,29 @@ pub fn get_hash(algorithm: &str, data: &[u8]) -> Result<CryptoString, EzNaclErro
 			hasher.update(data);
 			let result = hasher.finalize();
 			Ok(CryptoString::from_bytes("SHA-256", &result).unwrap())
+		},
+		"sha-512" => {
+			use sha2::{Sha512, Digest};
+			let mut hasher = Sha512::new();
+			hasher.update(data);
+			let result = hasher.finalize();
+			Ok(CryptoString::from_bytes("SHA-512", &result).unwrap())
+		},
+		"sha3-256" => {
+			use tiny_keccak::{Sha3, Hasher};
+			let mut hasher = Sha3::v256();
+			hasher.update(data);
+			let mut buffer = [0 as u8; 32];
+			hasher.finalize(&mut buffer);
+			Ok(CryptoString::from_bytes("SHA3-256", &buffer).unwrap())
+		},
+		"sha3-512" => {
+			use tiny_keccak::{Sha3, Hasher};
+			let mut hasher = Sha3::v512();
+			hasher.update(data);
+			let mut buffer = [0 as u8; 64];
+			hasher.finalize(&mut buffer);
+			Ok(CryptoString::from_bytes("SHA3-512", &buffer).unwrap())
 		},
 		_ => Err(EzNaclError::UnsupportedAlgorithm),
 	}
