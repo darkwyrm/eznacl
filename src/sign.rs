@@ -3,7 +3,8 @@ use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Sign, VerifySigna
 use sodiumoxide::crypto::sign;
 use crate::error::EzNaclError;
 
-/// Returns the cryptographic signing algorithms supported by the library
+/// Returns the cryptographic signing algorithms supported by the library. Currently the only
+/// supported signing algorithm available is Ed25519, although ECDSA is planned.
 pub fn get_supported_signing_algorithms() -> Vec<String> {
 	vec![
 		String::from("ED25519"),

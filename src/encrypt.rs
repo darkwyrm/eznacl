@@ -3,14 +3,17 @@ use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Encryptor, Decryp
 use sodiumoxide::crypto;
 use crate::error::EzNaclError;
 
-/// Returns the asymmetric encryption algorithms supported by the library
+/// Returns the asymmetric encryption algorithms supported by the library. Currently the only 
+/// supported algorithm is Curve25519, which is included in drafts for FIPS 186-5. This is because 
+/// of how tricky RSA can be to get right in addition to the massive key sizes required for good
+/// security.
 pub fn get_supported_asymmetric_algorithms() -> Vec<String> {
 	vec![
 		String::from("CURVE25519"),
 	]
 }
 
-/// A Curve25519 asymmetric encryption keypair
+/// An asymmetric encryption keypair
 pub struct EncryptionPair {
 	pubkey: CryptoString,
 	privkey: CryptoString,
