@@ -10,6 +10,9 @@ pub fn get_supported_hash_algorithms() -> Vec<String> {
 		String::from("BLAKE3-256"),
 		String::from("K12-256"),
 		String::from("SHA-256"),
+		String::from("SHA-512"),
+		String::from("SHA3-256"),
+		String::from("SHA3-512"),
 	]
 }
 
