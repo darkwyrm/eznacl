@@ -12,6 +12,7 @@ pub fn get_supported_signing_algorithms() -> Vec<String> {
 }
 
 /// An Ed25519 asymmetric signing keypair
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct SigningPair {
 	verkey: CryptoString,
 	signkey: CryptoString,
@@ -138,6 +139,7 @@ impl VerifySignature for SigningPair {
 }
 
 /// An Ed25519 verification key
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct VerificationKey {
 	verkey: CryptoString,
 }

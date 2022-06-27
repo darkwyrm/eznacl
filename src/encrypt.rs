@@ -14,6 +14,7 @@ pub fn get_supported_asymmetric_algorithms() -> Vec<String> {
 }
 
 /// An asymmetric encryption keypair
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct EncryptionPair {
 	pubkey: CryptoString,
 	privkey: CryptoString,
@@ -145,6 +146,7 @@ impl Decryptor for EncryptionPair {
 }
 
 /// A Curve25519 encryption key
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct EncryptionKey {
 	pubkey: CryptoString,
 }
