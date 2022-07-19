@@ -17,11 +17,23 @@ pub struct SecretKey {
 	key: CryptoString
 }
 
+
+fn is_valid_secretkey_type(algo: &str) -> bool {
+	match algo {
+		"XSALSA20" => true,
+		_ => false,
+	}
+}
+
 impl SecretKey {
 
 	/// Creates a new SecretKey from a CryptoString object
-	pub fn from(key: CryptoString) -> SecretKey {
-		SecretKey { key }
+	pub fn from(key: &CryptoString) -> Option<SecretKey> {
+		if is_valid_secretkey_type(key.prefix()) {
+			Some(SecretKey { key: key.clone() })
+		} else {
+			None
+		}
 	}
 
 	/// Creates a new SecretKey from a string containing CryptoString-formatted data
@@ -32,14 +44,21 @@ impl SecretKey {
 			None => return None
 		};
 
-		Some(SecretKey { key: keycs })
+		SecretKey::from(&keycs)
 	}
 
 	/// Generates an XSalsa20 symmetric encryption key.
-	pub fn generate() -> Option<SecretKey> {
-		let raw_key = secretbox::gen_key();
-		let key = CryptoString::from_bytes("XSALSA20", &raw_key[..])?;
-		Some(SecretKey { key })
+	pub fn generate(algo: &str) -> Option<SecretKey> {
+		match algo {
+			"XSALSA20" => {
+				let raw_key = secretbox::gen_key();
+				let key = CryptoString::from_bytes("XSALSA20", &raw_key[..])?;
+				Some(SecretKey { key })
+			},
+			_ => {
+				None
+			}
+		}
 	}
 }
 
@@ -52,7 +71,7 @@ impl CryptoInfo for SecretKey {
 
 	/// Returns the string "XSALSA20"
 	fn get_algorithm(&self) -> String {
-		return String::from("XSALSA20")
+		return String::from(self.key.prefix())
 	}
 }
 
