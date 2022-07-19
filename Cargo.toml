@@ -13,6 +13,7 @@ categories = ["cryptography"]
 exclude = [".gitignore"]
 
 [dependencies]
+aead = "0.4.3"
 base85 = "1.1.0"
 blake2 = "0.10.2"
 blake3 = "1.3.1"
