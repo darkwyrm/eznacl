@@ -58,6 +58,17 @@ pub trait VerifySignature {
 pub fn is_supported_algorithm(name: &str) -> bool {
 
 	match name {
+		
+		// Symmetric encryption algorithms
+		"XSALSA20" => true,
+
+		// Asymmetric encryption algorithms
+		"CURVE25519" => true,
+
+		// Hash algorithms
+		"BLAKE2B-256" | "BLAKE2B-512" | "BLAKE3-256" => true,
+		"K12-256" | "SHA-256" | "SHA-512" | "SHA3-256" | "SHA3-512" => true,
+		
 		_ => false
 	}
 }
