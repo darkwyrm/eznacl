@@ -52,14 +52,24 @@ impl EncryptionPair {
 	}
 
 	/// Generates a Curve25519 asymmetric encryption keypair.
-	pub fn generate() -> Option<EncryptionPair> {
+	pub fn generate(algorithm: &str) -> Result<EncryptionPair, EzNaclError> {
+
+		if algorithm != "CURVE25519" {
+			return Err(EzNaclError::UnsupportedAlgorithm)
+		}
 
 		let (raw_ekey, raw_dkey) = crypto::box_::gen_keypair();
-		let pubkey = CryptoString::from_bytes("CURVE25519", &raw_ekey[..])?;
+		let pubkey = match CryptoString::from_bytes("CURVE25519", &raw_ekey[..]) {
+			Some(cs) => cs,
+			None => return Err(EzNaclError::KeyError)
+		};
 
-		let privkey = CryptoString::from_bytes("CURVE25519", &raw_dkey[..])?;
+		let privkey = match CryptoString::from_bytes("CURVE25519", &raw_dkey[..]) {
+			Some(cs) => cs,
+			None => return Err(EzNaclError::KeyError)
+		};
 		
-		Some(EncryptionPair { pubkey, privkey })
+		Ok(EncryptionPair { pubkey, privkey })
 	}
 }
 
