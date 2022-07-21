@@ -53,3 +53,11 @@ pub trait Sign {
 pub trait VerifySignature {
 	fn verify(&self, data: &[u8], signature: &CryptoString) -> Result<bool, EzNaclError>;
 }
+
+/// Returns true if the specified algorithm is one supported by the library, regardless of type.
+pub fn is_supported_algorithm(name: &str) -> bool {
+
+	match name {
+		_ => false
+	}
+}
