@@ -1,5 +1,5 @@
 use crate::CryptoString;
-use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Encryptor, Decryptor};
+use crate::base::*;
 use sodiumoxide::crypto;
 use crate::error::EzNaclError;
 
@@ -23,23 +23,32 @@ pub struct EncryptionPair {
 impl EncryptionPair {
 
 	/// Creates a new EncryptionPair from two CryptoString objects
-	pub fn from(pubkey: &CryptoString, privkey: &CryptoString) -> EncryptionPair {
-		EncryptionPair { pubkey: pubkey.clone(), privkey: privkey.clone() }
+	pub fn from(pubkey: &CryptoString, privkey: &CryptoString)
+	-> Result<EncryptionPair, EzNaclError> {
+
+		if pubkey.prefix() != privkey.prefix() {
+			return Err(EzNaclError::KeyError)
+		}
+		if !is_supported_algorithm(pubkey.prefix()) {
+			return Err(EzNaclError::UnsupportedAlgorithm)
+		}
+
+		Ok(EncryptionPair { pubkey: pubkey.clone(), privkey: privkey.clone() })
 	}
 
 	/// Creates a new EncryptionPair from two strings containing CryptoString-formatted data
-	pub fn from_strings(pubstr: &str, privstr: &str) -> Option<EncryptionPair> {
+	pub fn from_strings(pubstr: &str, privstr: &str) -> Result<EncryptionPair, EzNaclError> {
 		
 		let pubcs = match CryptoString::from(pubstr) {
 			Some(cs) => cs,
-			None => return None
+			None => return Err(EzNaclError::KeyError)
 		};
 		let privcs = match CryptoString::from(privstr) {
 			Some(cs) => cs,
-			None => return None
+			None => return Err(EzNaclError::KeyError)
 		};
 
-		Some(EncryptionPair { pubkey: pubcs, privkey: privcs })
+		EncryptionPair::from(&pubcs, &privcs)
 	}
 
 	/// Generates a Curve25519 asymmetric encryption keypair.
@@ -154,19 +163,23 @@ pub struct EncryptionKey {
 impl EncryptionKey {
 
 	/// Creates a new EncryptionKey from a CryptoString object
-	pub fn from(pubkey: &CryptoString) -> EncryptionKey {
-		EncryptionKey { pubkey: pubkey.clone() }
+	pub fn from(pubkey: &CryptoString) -> Result<EncryptionKey, EzNaclError> {
+		
+		if !is_supported_algorithm(pubkey.prefix()) {
+			return Err(EzNaclError::UnsupportedAlgorithm)
+		}
+		Ok(EncryptionKey { pubkey: pubkey.clone() })
 	}
 
 	/// Creates a new EncryptionKey from a string containing CryptoString-formatted data
-	pub fn from_string(pubstr: &str) -> Option<EncryptionKey> {
+	pub fn from_string(pubstr: &str) -> Result<EncryptionKey, EzNaclError> {
 		
 		let pubcs = match CryptoString::from(pubstr) {
 			Some(cs) => cs,
-			None => return None
+			None => return Err(EzNaclError::KeyError)
 		};
 
-		Some(EncryptionKey { pubkey: pubcs })
+		EncryptionKey::from(&pubcs)
 	}
 
 }
@@ -203,6 +216,25 @@ impl PublicKey for EncryptionKey {
 	
 }
 
+impl Encryptor for EncryptionKey {
+	
+	/// Encrypts the provided data using the Curve25519 algorithm. Note that this is slower than
+	/// symmetric encryption and should be used only on small data sets.
+	fn encrypt(&self, data: &[u8]) -> Result<CryptoString, EzNaclError> {
+
+		let rawkey = match crypto::box_::PublicKey::from_slice(&self.pubkey.as_raw()) {
+			Some(v) => v,
+			None => return Err(EzNaclError::KeyError)
+		};
+	
+		let ciphertext = crypto::sealedbox::seal(data, &rawkey);
+		match CryptoString::from_bytes("CURVE25519", &ciphertext) {
+			Some(v) => Ok(v),
+			None => Err(EzNaclError::EncodingError)
+		}
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use crate::*;
@@ -213,8 +245,8 @@ mod tests {
 		let keypair = match crate::EncryptionPair::from_strings(
 			"CURVE25519:(B2XX5|<+lOSR>_0mQ=KX4o<aOvXe6M`Z5ldINd`",
 			"CURVE25519:(Rj5)mmd1|YqlLCUP0vE;YZ#o;tJxtlAIzmPD7b&") {
-				Some(kp) => kp,
-				None => panic!("encrypt_decrypt_test failed to create keypair")
+				Ok(kp) => kp,
+				Err(_) => panic!("encrypt_decrypt_test failed to create keypair")
 			};
 	
 		
