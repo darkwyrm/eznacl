@@ -16,6 +16,16 @@ pub fn get_supported_hash_algorithms() -> Vec<String> {
 	]
 }
 
+/// Returns the name of the hash algorithm recommended for the library based on if a certified
+/// algorithm is required.
+pub fn get_preferred_hash_algorithm(require_certified: bool) -> &'static str {
+	if require_certified {
+		return "SHA-256"
+	} else {
+		return "BLAKE3-256"
+	}
+}
+
 /// GetHash generates a CryptoString hash of the supplied data. Currently the supported algorithms
 /// are BLAKE2B-256, BLAKE2B-512, K12-256, BLAKE3-256, and SHA-256.
 pub fn get_hash(algorithm: &str, data: &[u8]) -> Result<CryptoString, EzNaclError> {
