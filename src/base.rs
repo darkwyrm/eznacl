@@ -66,7 +66,7 @@ pub fn is_supported_algorithm(name: &str) -> bool {
 		"CURVE25519" => true,
 
 		// Signing algorithsm
-		"ED25519" = > true,
+		"ED25519" => true,
 
 		// Hash algorithms
 		"BLAKE2B-256" | "BLAKE2B-512" | "BLAKE3-256" => true,
