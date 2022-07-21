@@ -2,6 +2,9 @@
 use crate::CryptoString;
 use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Encryptor, Decryptor};
 use crate::error::EzNaclError;
+use aes_gcm::{self, Aes128Gcm};
+use rand::thread_rng;
+use rand::Rng;
 use sodiumoxide::crypto::secretbox;
 
 /// Returns the symmetric encryption algorithms supported by the library. Currently the only
@@ -21,6 +24,7 @@ pub struct SecretKey {
 fn is_valid_secretkey_type(algo: &str) -> bool {
 	match algo {
 		"XSALSA20" => true,
+		"AES-128" | "AES-256" => true,
 		_ => false,
 	}
 }
@@ -50,9 +54,32 @@ impl SecretKey {
 	/// Generates an XSalsa20 symmetric encryption key.
 	pub fn generate(algo: &str) -> Option<SecretKey> {
 		match algo {
+
 			"XSALSA20" => {
 				let raw_key = secretbox::gen_key();
 				let key = CryptoString::from_bytes("XSALSA20", &raw_key[..])?;
+				Some(SecretKey { key })
+			},
+			"AES-128" => {
+				let mut key = [0u8; 16];
+				match thread_rng().try_fill(&mut key[..]) {
+					Ok(_) => (),
+					Err(e) => {
+						return None
+					}
+				};
+				let keycs = CryptoString::from_bytes("AES-128", &key[..])?;
+				Some(SecretKey { key: keycs })
+			},
+			"AES-256" => {
+				let mut key = [0u8; 32];
+				match thread_rng().try_fill(&mut key[..]) {
+					Ok(_) => (),
+					Err(e) => {
+						return None
+					}
+				};
+				let key = CryptoString::from_bytes("AES-256", &key[..])?;
 				Some(SecretKey { key })
 			},
 			_ => {
@@ -116,20 +143,37 @@ impl Encryptor for SecretKey {
 	/// Encrypts the provided data using the XSalsa20 algorithm.
 	fn encrypt(&self, data: &[u8]) -> Result<CryptoString, EzNaclError> {
 
-		let nonce = secretbox::gen_nonce();
-		let key = match secretbox::xsalsa20poly1305::Key::from_slice(&self.key.as_raw()) {
-			Some(v) => v,
-			None => return Err(EzNaclError::KeyError)
-		};
-		let mut ciphertext = secretbox::seal(data, &nonce, &key);
+		match self.key.prefix() {
+			"XSALSA20" => {
+				let nonce = secretbox::gen_nonce();
+				let key = match secretbox::xsalsa20poly1305::Key::from_slice(&self.key.as_raw()) {
+					Some(v) => v,
+					None => return Err(EzNaclError::KeyError)
+				};
+				let mut ciphertext = secretbox::seal(data, &nonce, &key);
+		
+				let mut out = Vec::new();
+				out.extend_from_slice(&nonce[..]);
+				out.append(&mut ciphertext);
+		
+				match CryptoString::from_bytes("XSALSA20", &out) {
+					Some(v) => Ok(v),
+					None => Err(EzNaclError::EncodingError)
+				}
+			},
+			"AES-128" => {
+				// let key: &[u8] = aes_gcm::Aes128Gcm::new();
+				// let mut nonce = [0u8; 12];
+				// match thread_rng().try_fill(&mut key[..]) {
+				// 	Ok(_) => (),
+				// 	Err(e) => {
+				// 		return Err(EzNaclError::InternalError)
+				// 	}
+				// };
 
-		let mut out = Vec::new();
-		out.extend_from_slice(&nonce[..]);
-		out.append(&mut ciphertext);
-
-		match CryptoString::from_bytes("XSALSA20", &out) {
-			Some(v) => Ok(v),
-			None => Err(EzNaclError::EncodingError)
+				Err(EzNaclError::EncryptionError)
+			}
+			_ => { return Err(EzNaclError::UnsupportedAlgorithm) }
 		}
 	}
 }

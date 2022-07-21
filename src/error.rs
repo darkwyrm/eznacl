@@ -9,7 +9,8 @@ pub enum EzNaclError {
 	KeyError,
 	SignatureError,
 	SizeError,
-	UnsupportedAlgorithm
+	UnsupportedAlgorithm,
+	InternalError
 }
 
 impl std::error::Error for EzNaclError {}
@@ -25,6 +26,7 @@ impl fmt::Display for EzNaclError {
 			EzNaclError::SignatureError => write!(f, "Signature Error"),
 			EzNaclError::SizeError => write!(f, "Size Error"),
 			EzNaclError::UnsupportedAlgorithm => write!(f, "Unsupported Algorithm"),
+			EzNaclError::InternalError => write!(f, "Internal Error"),
 		}
 	}
 }
