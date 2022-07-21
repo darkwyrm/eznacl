@@ -1,5 +1,5 @@
 use crate::CryptoString;
-use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Sign, VerifySignature};
+use crate::base::*;
 use sodiumoxide::crypto::sign;
 use crate::error::EzNaclError;
 
@@ -20,33 +20,53 @@ pub struct SigningPair {
 
 impl SigningPair {
 	/// Creates a SigningPair from two CryptoString objects
-	pub fn from(verkey: &CryptoString, signkey: &CryptoString) -> SigningPair {
-		SigningPair { verkey: verkey.clone(), signkey: signkey.clone() }
+	pub fn from(verkey: &CryptoString, signkey: &CryptoString)
+	-> Result<SigningPair, EzNaclError> {
+
+		if verkey.prefix() != signkey.prefix() {
+			return Err(EzNaclError::KeyError)
+		}
+		if !is_supported_algorithm(verkey.prefix()) {
+			return Err(EzNaclError::UnsupportedAlgorithm)
+		}
+
+		Ok(SigningPair { verkey: verkey.clone(), signkey: signkey.clone() })
 	}
 
 	/// Creates a SigningPair from two strings containing CryptoString-formatted data
-	pub fn from_strings(verstr: &str, signstr: &str) -> Option<SigningPair> {
+	pub fn from_strings(verstr: &str, signstr: &str) -> Result<SigningPair, EzNaclError> {
 		
 		let vercs = match CryptoString::from(verstr) {
 			Some(cs) => cs,
-			None => return None
+			None => return Err(EzNaclError::KeyError),
 		};
 		let signcs = match CryptoString::from(signstr) {
 			Some(cs) => cs,
-			None => return None
+			None => return Err(EzNaclError::KeyError),
 		};
 
-		Some(SigningPair { verkey: vercs, signkey: signcs })
+		SigningPair::from(&vercs, &signcs)
 	}
 	
 	/// Generates a new ED25519 asymmetric encryption keypair.
-	pub fn generate() -> Option<SigningPair> {
+	pub fn generate(algorithm: &str) -> Result<SigningPair, EzNaclError> {
+
+		if algorithm != "CURVE25519" {
+			return Err(EzNaclError::UnsupportedAlgorithm)
+		}
 
 		let (raw_vkey, raw_skey) = sign::gen_keypair();
-		let verkey = CryptoString::from_bytes("ED25519", &raw_vkey[..])?;
+		let verkey = match CryptoString::from_bytes("ED25519", &raw_vkey[..]) {
+			Some(cs) => cs,
+			None => return Err(EzNaclError::KeyError)
+		};
 
-		let signkey = CryptoString::from_bytes("ED25519", &raw_skey[..32])?;
-		Some(SigningPair { verkey, signkey })
+		let signkey = match CryptoString::from_bytes("ED25519", &raw_skey[..32]) {
+			Some(cs) => cs,
+			None => return Err(EzNaclError::KeyError)
+		};
+		
+		Ok(SigningPair { verkey, signkey })
 	}
 }
 
@@ -163,25 +183,6 @@ impl VerificationKey {
 	
 }
 
-impl VerifySignature for VerificationKey {
-
-	/// Verifies the Ed25519 signature against the provided data
-	fn verify(&self, data: &[u8], signature: &CryptoString) -> Result<bool, EzNaclError> {
-
-		let vkey = match sign::ed25519::PublicKey::from_slice(&self.verkey.as_raw()) {
-			Some(v) => v,
-			None => return Err(EzNaclError::KeyError)
-		};
-
-		let rawsig = match sign::ed25519::Signature::from_bytes(&signature.as_raw()) {
-			Ok(s) => s,
-			_ => return Err(EzNaclError::SignatureError),
-		};
-
-		Ok(sign::verify_detached(&rawsig, data, &vkey))
-	}
-}
-
 impl CryptoInfo for VerificationKey {
 
 	/// Indicates that the VerificationKey object can perform both signing and verification
@@ -213,6 +214,25 @@ impl PublicKey for VerificationKey {
 	}
 }
 
+impl VerifySignature for VerificationKey {
+
+	/// Verifies the Ed25519 signature against the provided data
+	fn verify(&self, data: &[u8], signature: &CryptoString) -> Result<bool, EzNaclError> {
+
+		let vkey = match sign::ed25519::PublicKey::from_slice(&self.verkey.as_raw()) {
+			Some(v) => v,
+			None => return Err(EzNaclError::KeyError)
+		};
+
+		let rawsig = match sign::ed25519::Signature::from_bytes(&signature.as_raw()) {
+			Ok(s) => s,
+			_ => return Err(EzNaclError::SignatureError),
+		};
+
+		Ok(sign::verify_detached(&rawsig, data, &vkey))
+	}
+}
+
 #[cfg(test)]
 mod tests {
 	use crate::*;
@@ -223,8 +243,8 @@ mod tests {
 		let keypair = match crate::SigningPair::from_strings(
 			"ED25519:PnY~pK2|;AYO#1Z;B%T$2}E$^kIpL=>>VzfMKsDx",
 			"ED25519:{^A@`5N*T%5ybCU%be892x6%*Rb2rnYd=SGeO4jF") {
-				Some(kp) => kp,
-				None => panic!("sign_verify_test failed to create keypair")
+				Ok(kp) => kp,
+				Err(_) => panic!("sign_verify_test failed to create keypair")
 			};
 		
 			let testdata = "This is some signing test data";
