@@ -1,6 +1,6 @@
 [package]
 name = "eznacl"
-version = "3.2.4"
+version = "3.2.5"
 edition = "2021"
 authors = [ "Jon Yoder <jon@yoder.cloud>"]
 description = "A wrapper around NaCl which makes working with cryptography even easier"
@@ -13,7 +13,7 @@ categories = ["cryptography"]
 exclude = [".gitignore"]
 
 [dependencies]
-aes-gcm = "0.9.4"
+# aes-gcm = "0.9.4"
 base85 = "1.1.0"
 blake2 = "0.10.2"
 blake3 = "1.3.1"
