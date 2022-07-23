@@ -2,9 +2,8 @@
 use crate::CryptoString;
 use crate::base::{CryptoInfo, PublicKey, PrivateKey, KeyUsage, Encryptor, Decryptor};
 use crate::error::EzNaclError;
-use aes_gcm::{self, Aes128Gcm};
-use rand::thread_rng;
-use rand::Rng;
+// use rand::thread_rng;
+// use rand::Rng;
 use sodiumoxide::crypto::secretbox;
 
 /// Returns the symmetric encryption algorithms supported by the library. Currently the only
@@ -24,7 +23,7 @@ pub struct SecretKey {
 fn is_valid_secretkey_type(algo: &str) -> bool {
 	match algo {
 		"XSALSA20" => true,
-		"AES-128" | "AES-256" => true,
+		// "AES-128" | "AES-256" => true,
 		_ => false,
 	}
 }
@@ -60,28 +59,28 @@ impl SecretKey {
 				let key = CryptoString::from_bytes("XSALSA20", &raw_key[..])?;
 				Some(SecretKey { key })
 			},
-			"AES-128" => {
-				let mut key = [0u8; 16];
-				match thread_rng().try_fill(&mut key[..]) {
-					Ok(_) => (),
-					Err(e) => {
-						return None
-					}
-				};
-				let keycs = CryptoString::from_bytes("AES-128", &key[..])?;
-				Some(SecretKey { key: keycs })
-			},
-			"AES-256" => {
-				let mut key = [0u8; 32];
-				match thread_rng().try_fill(&mut key[..]) {
-					Ok(_) => (),
-					Err(e) => {
-						return None
-					}
-				};
-				let key = CryptoString::from_bytes("AES-256", &key[..])?;
-				Some(SecretKey { key })
-			},
+			// "AES-128" => {
+			// 	let mut key = [0u8; 16];
+			// 	match thread_rng().try_fill(&mut key[..]) {
+			// 		Ok(_) => (),
+			// 		Err(e) => {
+			// 			return None
+			// 		}
+			// 	};
+			// 	let keycs = CryptoString::from_bytes("AES-128", &key[..])?;
+			// 	Some(SecretKey { key: keycs })
+			// },
+			// "AES-256" => {
+			// 	let mut key = [0u8; 32];
+			// 	match thread_rng().try_fill(&mut key[..]) {
+			// 		Ok(_) => (),
+			// 		Err(e) => {
+			// 			return None
+			// 		}
+			// 	};
+			// 	let key = CryptoString::from_bytes("AES-256", &key[..])?;
+			// 	Some(SecretKey { key })
+			// },
 			_ => {
 				None
 			}
@@ -161,7 +160,7 @@ impl Encryptor for SecretKey {
 					None => Err(EzNaclError::EncodingError)
 				}
 			},
-			"AES-128" => {
+			// "AES-128" => {
 				// let key: &[u8] = aes_gcm::Aes128Gcm::new();
 				// let mut nonce = [0u8; 12];
 				// match thread_rng().try_fill(&mut key[..]) {
@@ -171,8 +170,8 @@ impl Encryptor for SecretKey {
 				// 	}
 				// };
 
-				Err(EzNaclError::EncryptionError)
-			}
+			// 	Err(EzNaclError::EncryptionError)
+			// }
 			_ => { return Err(EzNaclError::UnsupportedAlgorithm) }
 		}
 	}
