@@ -51,7 +51,7 @@ impl SigningPair {
 	/// Generates a new ED25519 asymmetric encryption keypair.
 	pub fn generate(algorithm: &str) -> Result<SigningPair, EzNaclError> {
 
-		if algorithm != "CURVE25519" {
+		if algorithm != "ED25519" {
 			return Err(EzNaclError::UnsupportedAlgorithm)
 		}
 
