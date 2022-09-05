@@ -1,0 +1,2 @@
+- 3.2.7
+	- ENHANCEMENT: EzNaClError is now derived from PartialEq
