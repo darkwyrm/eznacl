@@ -22,7 +22,13 @@ lazy_static = "1.4.0"
 rand = "0.8.5"
 regex = "1.5.4"
 rust-argon2 = "1.0.0"
+serde = { version = "1.0.145", features = ["derive"], optional = true }
 sha2 = "0.10.1"
 sodiumoxide = "0.2.7"
 thiserror = "1.0.30"
 tiny-keccak = { version = "2.0.2", features = ["k12", "sha3"] }
+
+[features]
+default = []
+use_serde = ["dep:serde"]
+
