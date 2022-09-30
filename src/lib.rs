@@ -15,9 +15,9 @@
 //!
 //! ## Encryption Example
 //! ```
-//! use eznacl;
+//! use eznacl::*;
 //!
-//! let keypair = EncryptionPair::generate().unwrap();
+//! let keypair = EncryptionPair::generate("CURVE25519").unwrap();
 //!
 //! let testdata = "This is some encryption test data";
 //! let encrypted_data = keypair.encrypt(testdata.as_bytes()).unwrap();
@@ -41,9 +41,9 @@
 //! [`SigningPair`](struct.SigningPair.html).
 //!
 //! ```
-//! use eznacl;
+//! use eznacl::*;
 //!
-//! let signpair = SigningPair::generate().unwrap();
+//! let signpair = SigningPair::generate("ED25519").unwrap();
 //!
 //! let testdata = "This is some test data to sign";
 //! let signature = match signpair.sign(testdata.as_bytes()) {
@@ -71,6 +71,7 @@
 //! Generating hashes of data is literally as simple as possible for cases where data will fit into memory.
 //!
 //! ```
+//! use eznacl::*;
 //! let testdata = "This is some test data to hash";
 //! let hash = get_hash("sha-256", testdata.as_bytes()).unwrap();
 //! println!("\nTest data:\n{}\nHash of test data:\n{}\n", testdata, hash);
@@ -79,6 +80,7 @@
 //! Keep in mind that this form of hashing is **not intended for passwords**. This is because these hash algorithms are designed to be fast and will not provide protection against brute force attacks. Instead, use EzNaCl's password hashing facilities.
 //!
 //! ```
+//! use eznacl::*;
 //! let password = "This is my secret password";
 //! let pwdhash = hash_password(&password, &HashStrength::Basic);
 //! println!("\nPassword: {}\nPassword Hash:\n{}\n", password, pwdhash);
