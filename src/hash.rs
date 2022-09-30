@@ -108,11 +108,16 @@ mod tests {
     fn test_get_hash() {
         // These are the resulting hashes for the supported algorithms when applied to the string
         // "aaaaaaaa".
+
+        // These two hash algorithms provide 128 bits of protection, but are 256 bits in length
         let test128list = [
-            ("k12-256", String::from(r"K12-256:97SJl1(;{l*XHAdoKR=K")),
+            (
+                "k12-256",
+                String::from(r"K12-256:97SJl1(;{l*XHAdoKR=KJ%f_-Ij<B-=;;T;b<izT"),
+            ),
             (
                 "blake3-256",
-                String::from(r"BLAKE3-256:vE_TL>ixs8I<**_vPE@w"),
+                String::from(r"BLAKE3-256:vE_TL>ixs8I<**_vPE@wnTJom(OOqO$B(KLZ7n{E"),
             ),
         ];
 
