@@ -1,2 +1,4 @@
+- 3.2.8
+	- ENHANCEMENT: Add optional serde support
 - 3.2.7
 	- ENHANCEMENT: EzNaClError is now derived from PartialEq
