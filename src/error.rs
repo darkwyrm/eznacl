@@ -21,4 +21,6 @@ pub enum EzNaclError {
     UnsupportedAlgorithm,
     #[error("internal error")]
     InternalError,
+    #[error("value error")]
+    ValueError,
 }
