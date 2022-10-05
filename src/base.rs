@@ -1,5 +1,7 @@
 pub use crate::CryptoString;
 pub use crate::EzNaclError;
+use std::fmt;
+use std::str::FromStr;
 
 /// The KeyUsage type denotes the usage of a cryptography key, such as encryption, decryption, or
 /// both.
@@ -12,6 +14,50 @@ pub enum KeyUsage {
     Encrypt,
     Decrypt,
     EncryptDecrypt,
+}
+
+impl fmt::Display for KeyUsage {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            KeyUsage::Sign => write!(f, "sign"),
+            KeyUsage::Verify => write!(f, "verify"),
+            KeyUsage::SignVerify => write!(f, "signverify"),
+            KeyUsage::Encrypt => write!(f, "encrypt"),
+            KeyUsage::Decrypt => write!(f, "decrypt"),
+            KeyUsage::EncryptDecrypt => write!(f, "encryptdecrypt"),
+        }
+    }
+}
+
+impl FromStr for KeyUsage {
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<KeyUsage, Self::Err> {
+        match input.to_lowercase().as_str() {
+            "sign" => Ok(KeyUsage::Sign),
+            "verify" => Ok(KeyUsage::Verify),
+            "signverify" => Ok(KeyUsage::SignVerify),
+            "encrypt" => Ok(KeyUsage::Encrypt),
+            "decrypt" => Ok(KeyUsage::Decrypt),
+            "encryptdecrypt" => Ok(KeyUsage::EncryptDecrypt),
+            _ => Err(()),
+        }
+    }
+}
+
+impl std::convert::TryFrom<&str> for KeyUsage {
+    type Error = EzNaclError;
+    fn try_from(input: &str) -> Result<Self, Self::Error> {
+        match input.to_lowercase().as_str() {
+            "sign" => Ok(KeyUsage::Sign),
+            "verify" => Ok(KeyUsage::Verify),
+            "signverify" => Ok(KeyUsage::SignVerify),
+            "encrypt" => Ok(KeyUsage::Encrypt),
+            "decrypt" => Ok(KeyUsage::Decrypt),
+            "encryptdecrypt" => Ok(KeyUsage::EncryptDecrypt),
+            _ => Err(EzNaclError::ValueError),
+        }
+    }
 }
 
 /// The CryptoInfo trait is implemented by encryption- and signature-related keys to convey what
