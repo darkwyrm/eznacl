@@ -1,3 +1,5 @@
+- 3.2.9:
+	- ENHANCEMENT: Add from_str/try_from traits to KeyUsage and CryptoString
 - 3.2.8
 	- ENHANCEMENT: Add optional serde support
 - 3.2.7
