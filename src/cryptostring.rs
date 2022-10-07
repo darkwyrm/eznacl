@@ -19,9 +19,11 @@
 //!
 //! Regular usage of a CryptoString mostly involves creating an instance from other data. The constructor can take a CryptoString-formatted string or a string prefix and some raw bytes. Once data has been put into the instance, getting it back out is just a matter of casting to a string, or calling `to_string()`, `to_bytes()`, or `to_raw()`. The last of these three methods only returns the raw data stored in the object.
 
+use crate::EzNaclError;
 use base85::{decode, encode};
 use regex::Regex;
 use std::fmt;
+use std::str::FromStr;
 
 lazy_static! {
     static ref RE_CRYPTOSTRING_FORMAT: regex::Regex =
@@ -40,6 +42,27 @@ pub struct CryptoString {
 impl fmt::Display for CryptoString {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.string)
+    }
+}
+
+impl FromStr for CryptoString {
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<CryptoString, Self::Err> {
+        match CryptoString::from(input) {
+            Some(v) => Ok(v),
+            None => Err(()),
+        }
+    }
+}
+
+impl std::convert::TryFrom<&str> for CryptoString {
+    type Error = EzNaclError;
+    fn try_from(input: &str) -> Result<Self, Self::Error> {
+        match CryptoString::from(input) {
+            Some(v) => Ok(v),
+            None => Err(EzNaclError::ValueError),
+        }
     }
 }
 
